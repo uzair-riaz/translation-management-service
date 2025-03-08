@@ -10,7 +10,7 @@ use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 use PHPUnit\Framework\Attributes\Test;
 
-class TranslationApiTest extends TestCase
+class TranslationTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
 
@@ -324,16 +324,16 @@ class TranslationApiTest extends TestCase
 
         // Measure the response time
         $startTime = microtime(true);
-        
+
         $response = $this->getJson('/api/translations/export/en');
-        
+
         $endTime = microtime(true);
         $responseTime = ($endTime - $startTime) * 1000; // Convert to milliseconds
 
         // Assert the response time is less than 500ms
         $this->assertLessThan(500, $responseTime, "Response time should be less than 500ms, but was {$responseTime}ms");
-        
+
         // Assert the response
         $response->assertStatus(200);
     }
-} 
+}

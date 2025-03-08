@@ -33,7 +33,7 @@ class Translation extends Model
      */
     public function tags(): BelongsToMany
     {
-        return $this->belongsToMany(Tag::class);
+        return $this->belongsToMany(Tag::class, 'translation_tag');
     }
 
     /**
@@ -59,4 +59,4 @@ class Translation extends Model
     {
         return $query->where('value', 'LIKE', "%{$value}%");
     }
-} 
+}

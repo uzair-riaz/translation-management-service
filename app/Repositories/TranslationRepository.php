@@ -43,7 +43,7 @@ class TranslationRepository extends BaseRepository implements TranslationReposit
     public function searchByTag(string $tag, ?string $locale = null, int $perPage = 15): \Illuminate\Contracts\Pagination\LengthAwarePaginator
     {
         $query = $this->model->whereHas('tags', function ($query) use ($tag) {
-            $query->where('name', 'LIKE', "%{$tag}%");
+            $query->where('name', 'LIKE', "%$tag%");
         });
 
         if ($locale) {
@@ -84,7 +84,7 @@ class TranslationRepository extends BaseRepository implements TranslationReposit
     {
         // Use MySQL's MATCH AGAINST for fulltext search which is much faster
         // than LIKE queries for large datasets
-        $query = $this->model->whereRaw('MATCH(value) AGAINST(? IN BOOLEAN MODE)', [$content . '*']);
+        $query = $this->model->where('value', 'LIKE', "%$content%");
 
         if ($locale) {
             $query->locale($locale);
@@ -107,13 +107,13 @@ class TranslationRepository extends BaseRepository implements TranslationReposit
             ->select('key', 'value')
             ->orderBy('key')
             ->cursor();
-        
+
         // Use a generator to build the result array efficiently
         $result = [];
         foreach ($translations as $translation) {
             $result[$translation->key] = $translation->value;
         }
-        
+
         return $result;
     }
 
@@ -156,4 +156,4 @@ class TranslationRepository extends BaseRepository implements TranslationReposit
             ->where('locale', $locale)
             ->exists();
     }
-} 
+}
