@@ -5,6 +5,8 @@ namespace App\Services;
 use App\Interfaces\TagRepositoryInterface;
 use App\Interfaces\TranslationRepositoryInterface;
 use App\Interfaces\TranslationServiceInterface;
+use App\Models\Translation;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -40,17 +42,17 @@ class TranslationService implements TranslationServiceInterface
      *
      * @param string|null $locale
      * @param int $perPage
-     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
+     * @return LengthAwarePaginator
      */
-    public function getAllTranslations(?string $locale = null, int $perPage = 50): \Illuminate\Contracts\Pagination\LengthAwarePaginator
+    public function getAllTranslations(?string $locale = null, int $perPage = 50): LengthAwarePaginator
     {
         $cacheKey = $locale ? "translations.list.{$locale}.{$perPage}" : "translations.list.all.{$perPage}";
-        
+
         return Cache::remember($cacheKey, now()->addMinutes(30), function () use ($locale, $perPage) {
             if ($locale) {
                 return $this->translationRepository->getByLocale($locale, $perPage);
             }
-            
+
             return $this->translationRepository->paginate($perPage);
         });
     }
@@ -59,10 +61,10 @@ class TranslationService implements TranslationServiceInterface
      * Create a new translation.
      *
      * @param array $data
-     * @return \App\Models\Translation
+     * @return Translation
      * @throws \Exception
      */
-    public function createTranslation(array $data): \App\Models\Translation
+    public function createTranslation(array $data): Translation
     {
         // Check if translation already exists
         if ($this->translationRepository->existsByKeyAndLocale($data['key'], $data['locale'])) {
@@ -70,7 +72,7 @@ class TranslationService implements TranslationServiceInterface
         }
 
         // Ensure tags are provided
-        if (!isset($data['tags']) || empty($data['tags'])) {
+        if (empty($data['tags'])) {
             throw new \Exception('At least one tag is required for each translation', 422);
         }
 
@@ -107,10 +109,10 @@ class TranslationService implements TranslationServiceInterface
      * Get a translation by ID.
      *
      * @param int $id
-     * @return \App\Models\Translation
+     * @return Translation
      * @throws ModelNotFoundException
      */
-    public function getTranslationById(int $id): \App\Models\Translation
+    public function getTranslationById(int $id): Translation
     {
         $translation = $this->translationRepository->find($id);
 
@@ -128,11 +130,11 @@ class TranslationService implements TranslationServiceInterface
      *
      * @param int $id
      * @param array $data
-     * @return \App\Models\Translation
+     * @return Translation
      * @throws ModelNotFoundException
      * @throws \Exception
      */
-    public function updateTranslation(int $id, array $data): \App\Models\Translation
+    public function updateTranslation(int $id, array $data): Translation
     {
         $translation = $this->translationRepository->find($id);
 
@@ -141,7 +143,7 @@ class TranslationService implements TranslationServiceInterface
         }
 
         // Ensure tags are provided
-        if (!isset($data['tags']) || empty($data['tags'])) {
+        if (empty($data['tags'])) {
             throw new \Exception('At least one tag is required for each translation', 422);
         }
 
@@ -215,12 +217,12 @@ class TranslationService implements TranslationServiceInterface
      * @param string $tag
      * @param string|null $locale
      * @param int $perPage
-     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
+     * @return LengthAwarePaginator
      */
-    public function searchByTag(string $tag, ?string $locale = null, int $perPage = 50): \Illuminate\Contracts\Pagination\LengthAwarePaginator
+    public function searchByTag(string $tag, ?string $locale = null, int $perPage = 50): LengthAwarePaginator
     {
         $cacheKey = "translations.search.tag.{$tag}." . ($locale ?? 'all') . ".{$perPage}";
-        
+
         return Cache::remember($cacheKey, now()->addMinutes(15), function () use ($tag, $locale, $perPage) {
             return $this->translationRepository->searchByTag($tag, $locale, $perPage);
         });
@@ -232,12 +234,12 @@ class TranslationService implements TranslationServiceInterface
      * @param string $key
      * @param string|null $locale
      * @param int $perPage
-     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
+     * @return LengthAwarePaginator
      */
-    public function searchByKey(string $key, ?string $locale = null, int $perPage = 50): \Illuminate\Contracts\Pagination\LengthAwarePaginator
+    public function searchByKey(string $key, ?string $locale = null, int $perPage = 50): LengthAwarePaginator
     {
         $cacheKey = "translations.search.key.{$key}." . ($locale ?? 'all') . ".{$perPage}";
-        
+
         return Cache::remember($cacheKey, now()->addMinutes(15), function () use ($key, $locale, $perPage) {
             return $this->translationRepository->searchByKey($key, $locale, $perPage);
         });
@@ -249,12 +251,12 @@ class TranslationService implements TranslationServiceInterface
      * @param string $content
      * @param string|null $locale
      * @param int $perPage
-     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
+     * @return LengthAwarePaginator
      */
-    public function searchByContent(string $content, ?string $locale = null, int $perPage = 50): \Illuminate\Contracts\Pagination\LengthAwarePaginator
+    public function searchByContent(string $content, ?string $locale = null, int $perPage = 50): LengthAwarePaginator
     {
         $cacheKey = "translations.search.content.{$content}." . ($locale ?? 'all') . ".{$perPage}";
-        
+
         return Cache::remember($cacheKey, now()->addMinutes(15), function () use ($content, $locale, $perPage) {
             return $this->translationRepository->searchByContent($content, $locale, $perPage);
         });
@@ -290,12 +292,12 @@ class TranslationService implements TranslationServiceInterface
         // Clear all related caches for this locale
         Cache::forget("translations.{$locale}");
         Cache::forget("translations.export.{$locale}");
-        
+
         // Clear list caches
         Cache::forget("translations.list.{$locale}.50");
         Cache::forget("translations.list.all.50");
-        
+
         // Clear search caches (we can't clear all search caches efficiently,
         // but they will expire after 15 minutes anyway)
     }
-} 
+}

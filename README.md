@@ -10,13 +10,13 @@ A high-performance API service for managing translations across multiple locales
 - Search by tags, keys, or content
 - JSON export for frontend consumption
 - Secure authentication
-- Optimized for performance
+- Optimized for performance with Redis caching
 
 ## Requirements
 
 - PHP 8.2+
 - MySQL 8.0+
-- Redis (optional, for caching)
+- Redis 6.0+ (for caching)
 - Docker (optional, for containerized setup)
 
 ## Quick Start
@@ -36,28 +36,6 @@ docker-compose up -d
 
 # Generate test data (optional)
 docker-compose exec app php artisan translations:generate 1000
-```
-
-### Manual Installation
-
-```bash
-# Clone the repository
-git clone https://github.com/yourusername/translation-management-service.git
-cd translation-management-service
-
-# Configure environment
-cp .env.example .env
-
-# Install dependencies
-composer install
-
-# Set up application
-php artisan key:generate
-php artisan migrate
-
-# Generate test data (optional)
-php artisan translations:generate 1000
-```
 
 ## API Endpoints
 
