@@ -8,6 +8,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 class AuthServiceTest extends TestCase
 {
@@ -21,7 +22,7 @@ class AuthServiceTest extends TestCase
         $this->authService = new AuthService();
     }
 
-    /** @test */
+    #[Test]
     public function it_can_register_a_user()
     {
         $data = [
@@ -56,7 +57,7 @@ class AuthServiceTest extends TestCase
         $this->assertTrue(Hash::check('password123', $user->password));
     }
 
-    /** @test */
+    #[Test]
     public function it_can_login_a_user()
     {
         // Create a user
@@ -86,7 +87,7 @@ class AuthServiceTest extends TestCase
         $this->assertEquals('Bearer', $result['token_type']);
     }
 
-    /** @test */
+    #[Test]
     public function it_throws_exception_for_invalid_credentials()
     {
         // Create a user
@@ -105,7 +106,7 @@ class AuthServiceTest extends TestCase
         $this->authService->login($credentials);
     }
 
-    /** @test */
+    #[Test]
     public function it_can_logout_a_user()
     {
         // Create a user with a token
@@ -125,7 +126,7 @@ class AuthServiceTest extends TestCase
         $this->assertEquals(0, $user->tokens()->count());
     }
 
-    /** @test */
+    #[Test]
     public function it_returns_false_when_logging_out_nonexistent_user()
     {
         $result = $this->authService->logout(999);
@@ -133,7 +134,7 @@ class AuthServiceTest extends TestCase
         $this->assertFalse($result);
     }
 
-    /** @test */
+    #[Test]
     public function it_deletes_existing_tokens_when_logging_in()
     {
         // Create a user with a token

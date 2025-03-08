@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 class TranslationApiTest extends TestCase
 {
@@ -25,7 +26,7 @@ class TranslationApiTest extends TestCase
         $this->token = $this->user->createToken('test-token')->plainTextToken;
     }
 
-    /** @test */
+    #[Test]
     public function it_can_list_translations()
     {
         // Create some translations
@@ -67,7 +68,7 @@ class TranslationApiTest extends TestCase
             ]);
     }
 
-    /** @test */
+    #[Test]
     public function it_can_create_a_translation()
     {
         // Create test data
@@ -111,7 +112,7 @@ class TranslationApiTest extends TestCase
         $this->assertDatabaseHas('tags', ['name' => 'mobile']);
     }
 
-    /** @test */
+    #[Test]
     public function it_can_show_a_translation()
     {
         // Create a translation
@@ -138,7 +139,7 @@ class TranslationApiTest extends TestCase
             ]);
     }
 
-    /** @test */
+    #[Test]
     public function it_can_update_a_translation()
     {
         // Create a translation
@@ -182,7 +183,7 @@ class TranslationApiTest extends TestCase
         $this->assertDatabaseHas('tags', ['name' => 'desktop']);
     }
 
-    /** @test */
+    #[Test]
     public function it_can_delete_a_translation()
     {
         // Create a translation
@@ -206,7 +207,7 @@ class TranslationApiTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function it_can_search_translations_by_tag()
     {
         // Create a translation with tags
@@ -239,7 +240,7 @@ class TranslationApiTest extends TestCase
             ]);
     }
 
-    /** @test */
+    #[Test]
     public function it_can_search_translations_by_key()
     {
         // Create a translation with a specific key
@@ -270,7 +271,7 @@ class TranslationApiTest extends TestCase
             ]);
     }
 
-    /** @test */
+    #[Test]
     public function it_can_search_translations_by_content()
     {
         // Create a translation with specific content
@@ -301,7 +302,7 @@ class TranslationApiTest extends TestCase
             ]);
     }
 
-    /** @test */
+    #[Test]
     public function it_can_export_translations_as_json()
     {
         // Create translations for a specific locale
@@ -315,7 +316,7 @@ class TranslationApiTest extends TestCase
             ->assertJsonStructure([]);
     }
 
-    /** @test */
+    #[Test]
     public function it_returns_translations_in_less_than_500ms()
     {
         // Create a large number of translations

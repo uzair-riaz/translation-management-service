@@ -6,6 +6,7 @@ use App\Models\Tag;
 use App\Repositories\TagRepository;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 class TagRepositoryTest extends TestCase
 {
@@ -19,7 +20,7 @@ class TagRepositoryTest extends TestCase
         $this->tagRepository = new TagRepository(new Tag());
     }
 
-    /** @test */
+    #[Test]
     public function it_can_find_or_create_a_tag()
     {
         // Test creating a new tag
@@ -36,7 +37,7 @@ class TagRepositoryTest extends TestCase
         $this->assertEquals(1, Tag::count());
     }
 
-    /** @test */
+    #[Test]
     public function it_can_get_tag_ids_from_names()
     {
         // Create some tags first
@@ -62,7 +63,7 @@ class TagRepositoryTest extends TestCase
         $this->assertEquals(3, Tag::count());
     }
 
-    /** @test */
+    #[Test]
     public function it_handles_empty_tag_names_array()
     {
         $tagIds = $this->tagRepository->getTagIdsFromNames([]);
@@ -71,7 +72,7 @@ class TagRepositoryTest extends TestCase
         $this->assertEmpty($tagIds);
     }
 
-    /** @test */
+    #[Test]
     public function it_handles_duplicate_tag_names()
     {
         $tagIds = $this->tagRepository->getTagIdsFromNames(['web', 'web', 'web']);

@@ -6,12 +6,13 @@ use App\Models\Tag;
 use App\Models\Translation;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 class PerformanceTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[Test]
     public function export_endpoint_responds_in_under_500ms_with_large_dataset()
     {
         // Create a large dataset (1000 translations)
@@ -35,7 +36,7 @@ class PerformanceTest extends TestCase
         $this->assertEquals(1000, count($response->json()));
     }
 
-    /** @test */
+    #[Test]
     public function all_endpoints_respond_in_under_200ms()
     {
         // Create test data

@@ -6,12 +6,13 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 class AuthFlowTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[Test]
     public function complete_auth_flow_works_correctly()
     {
         // 1. Register a new user
@@ -115,7 +116,7 @@ class AuthFlowTest extends TestCase
         $newProtectedResponse->assertStatus(200);
     }
 
-    /** @test */
+    #[Test]
     public function registration_validation_works_correctly()
     {
         // Test with missing fields
@@ -158,7 +159,7 @@ class AuthFlowTest extends TestCase
             ->assertJsonValidationErrors(['password']);
     }
 
-    /** @test */
+    #[Test]
     public function login_validation_works_correctly()
     {
         // Test with missing fields
@@ -198,7 +199,7 @@ class AuthFlowTest extends TestCase
         $response->assertStatus(401);
     }
 
-    /** @test */
+    #[Test]
     public function logout_requires_authentication()
     {
         $response = $this->postJson('/api/logout');
@@ -206,7 +207,7 @@ class AuthFlowTest extends TestCase
         $response->assertStatus(401);
     }
 
-    /** @test */
+    #[Test]
     public function protected_routes_require_authentication()
     {
         // Test various protected endpoints

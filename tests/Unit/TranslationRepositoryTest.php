@@ -7,6 +7,7 @@ use App\Models\Translation;
 use App\Repositories\TranslationRepository;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 class TranslationRepositoryTest extends TestCase
 {
@@ -20,7 +21,7 @@ class TranslationRepositoryTest extends TestCase
         $this->translationRepository = new TranslationRepository(new Translation());
     }
 
-    /** @test */
+    #[Test]
     public function it_can_create_a_translation()
     {
         $data = [
@@ -38,7 +39,7 @@ class TranslationRepositoryTest extends TestCase
         $this->assertDatabaseHas('translations', $data);
     }
 
-    /** @test */
+    #[Test]
     public function it_can_update_a_translation()
     {
         $translation = Translation::factory()->create([
@@ -63,7 +64,7 @@ class TranslationRepositoryTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function it_can_delete_a_translation()
     {
         $translation = Translation::factory()->create();
@@ -76,7 +77,7 @@ class TranslationRepositoryTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[Test]
     public function it_can_find_a_translation_by_id()
     {
         $translation = Translation::factory()->create();
@@ -87,7 +88,7 @@ class TranslationRepositoryTest extends TestCase
         $this->assertEquals($translation->id, $foundTranslation->id);
     }
 
-    /** @test */
+    #[Test]
     public function it_can_get_translations_by_locale()
     {
         Translation::factory()->count(3)->create(['locale' => 'en']);
@@ -100,7 +101,7 @@ class TranslationRepositoryTest extends TestCase
         $this->assertEquals(2, $frTranslations->count());
     }
 
-    /** @test */
+    #[Test]
     public function it_can_search_translations_by_tag()
     {
         // Create tags
@@ -131,7 +132,7 @@ class TranslationRepositoryTest extends TestCase
         $this->assertEquals($translation1->id, $webEnResults->first()->id);
     }
 
-    /** @test */
+    #[Test]
     public function it_can_search_translations_by_key()
     {
         Translation::factory()->create([
@@ -157,7 +158,7 @@ class TranslationRepositoryTest extends TestCase
         $this->assertEquals(1, $results->count());
     }
 
-    /** @test */
+    #[Test]
     public function it_can_search_translations_by_content()
     {
         Translation::factory()->create([
@@ -183,7 +184,7 @@ class TranslationRepositoryTest extends TestCase
         $this->assertEquals(1, $results->count());
     }
 
-    /** @test */
+    #[Test]
     public function it_can_export_translations_by_locale()
     {
         Translation::factory()->create([
@@ -213,7 +214,7 @@ class TranslationRepositoryTest extends TestCase
         $this->assertEquals('Bienvenue dans notre application', $frExport['welcome.message']);
     }
 
-    /** @test */
+    #[Test]
     public function it_can_attach_tags_to_a_translation()
     {
         $translation = Translation::factory()->create();
@@ -227,7 +228,7 @@ class TranslationRepositoryTest extends TestCase
         $this->assertTrue($translation->tags->pluck('id')->contains($tag2->id));
     }
 
-    /** @test */
+    #[Test]
     public function it_can_sync_tags_for_a_translation()
     {
         $translation = Translation::factory()->create();
@@ -252,7 +253,7 @@ class TranslationRepositoryTest extends TestCase
         $this->assertTrue($translation->tags->pluck('id')->contains($tag3->id));
     }
 
-    /** @test */
+    #[Test]
     public function it_can_check_if_translation_exists_by_key_and_locale()
     {
         Translation::factory()->create([

@@ -7,6 +7,7 @@ use App\Models\Translation;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 class TranslationFlowTest extends TestCase
 {
@@ -31,7 +32,7 @@ class TranslationFlowTest extends TestCase
         Tag::factory()->create(['name' => 'desktop']);
     }
 
-    /** @test */
+    #[Test]
     public function complete_translation_flow_works_correctly()
     {
         // 1. Create a new translation
@@ -189,7 +190,7 @@ class TranslationFlowTest extends TestCase
         $this->assertArrayNotHasKey('welcome.message', $exportAfterDeleteResponse->json());
     }
 
-    /** @test */
+    #[Test]
     public function translation_validation_works_correctly()
     {
         // Test with missing fields
@@ -240,7 +241,7 @@ class TranslationFlowTest extends TestCase
         $response->assertStatus(409);
     }
 
-    /** @test */
+    #[Test]
     public function update_validation_works_correctly()
     {
         // Create a translation to update
@@ -274,7 +275,7 @@ class TranslationFlowTest extends TestCase
         $response->assertStatus(404);
     }
 
-    /** @test */
+    #[Test]
     public function delete_validation_works_correctly()
     {
         // Test with non-existent translation
@@ -284,7 +285,7 @@ class TranslationFlowTest extends TestCase
         $response->assertStatus(404);
     }
 
-    /** @test */
+    #[Test]
     public function search_endpoints_return_correct_results()
     {
         // Create translations with different tags, keys, and content
