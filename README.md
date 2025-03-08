@@ -67,7 +67,7 @@ php artisan test --filter=PerformanceTest
    DB_CONNECTION=mysql
    DB_HOST=db
    DB_PORT=3306
-   DB_DATABASE=translation_management_service
+   DB_DATABASE=translations
    DB_USERNAME=root
    DB_PASSWORD=root
    
@@ -82,22 +82,9 @@ php artisan test --filter=PerformanceTest
    docker-compose up -d
    ```
 
-5. Install dependencies:
-   ```
-   docker-compose exec app composer install
-   ```
+That's it! The Dockerfile automatically handles dependency installation, key generation, and database migrations.
 
-6. Generate application key:
-   ```
-   docker-compose exec app php artisan key:generate
-   ```
-
-7. Run migrations:
-   ```
-   docker-compose exec app php artisan migrate
-   ```
-
-8. (Optional) Generate test data:
+5. (Optional) Generate test data:
    ```
    docker-compose exec app php artisan translations:generate 100000
    ```
@@ -224,7 +211,7 @@ php artisan test --coverage
   - `tests/Feature/TranslationApiTest.php`: Tests for individual API endpoints
 
 - **Performance Tests**: Test response times and scalability
-  - `tests/Performance/ExportEndpointTest.php`: Tests for export endpoint performance
+  - `tests/Performance/PerformanceTest.php`: Tests for export endpoint performance
 
 ### Test Coverage
 
@@ -236,10 +223,6 @@ The test suite achieves >95% code coverage by testing:
 - All validation rules
 - Error handling and edge cases
 - Performance requirements
-
-### Continuous Integration
-
-The tests are automatically run in the CI/CD pipeline to ensure code quality and prevent regressions.
 
 ## License
 
