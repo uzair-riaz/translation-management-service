@@ -25,9 +25,9 @@ class TranslationFactory extends Factory
     public function definition(): array
     {
         return [
-            'key' => 'test.' . $this->faker->unique()->word() . '.' . $this->faker->unique()->word(),
+            'key' => 'test.' . $this->faker->unique()->numberBetween(1, 100000000),
             'value' => $this->faker->sentence(),
             'locale' => $this->faker->randomElement(['en', 'fr', 'es', 'de', 'it']),
         ];
     }
-} 
+}

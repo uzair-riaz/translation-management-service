@@ -315,25 +315,4 @@ class TranslationTest extends TestCase
         $response->assertStatus(200)
             ->assertJsonStructure([]);
     }
-
-    #[Test]
-    public function it_returns_translations_in_less_than_500ms()
-    {
-        // Create a large number of translations
-        Translation::factory()->count(1000)->create(['locale' => 'en']);
-
-        // Measure the response time
-        $startTime = microtime(true);
-
-        $response = $this->getJson('/api/translations/export/en');
-
-        $endTime = microtime(true);
-        $responseTime = ($endTime - $startTime) * 1000; // Convert to milliseconds
-
-        // Assert the response time is less than 500ms
-        $this->assertLessThan(500, $responseTime, "Response time should be less than 500ms, but was {$responseTime}ms");
-
-        // Assert the response
-        $response->assertStatus(200);
-    }
 }

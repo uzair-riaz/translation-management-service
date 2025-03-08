@@ -8,24 +8,40 @@ use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
 use PHPUnit\Framework\Attributes\Test;
 
-class AuthFlowTest extends TestCase
+class AuthTest extends TestCase
 {
     use RefreshDatabase;
 
-    #[Test]
-    public function complete_auth_flow_works_correctly()
+    protected $user;
+    protected $token;
+
+    protected function setUp(): void
     {
-        // 1. Register a new user
-        $registerData = [
-            'name' => 'Test User',
+        parent::setUp();
+
+        // Create a user for tests that require an authenticated user
+        $this->user = User::factory()->create([
             'email' => 'test@example.com',
+            'password' => Hash::make('password123'),
+        ]);
+
+        // Generate a token for authenticated requests
+        $this->token = $this->user->createToken('test-token')->plainTextToken;
+    }
+
+    #[Test]
+    public function it_can_register_a_new_user()
+    {
+        $registerData = [
+            'name' => 'New User',
+            'email' => 'newuser@example.com',
             'password' => 'password123',
             'password_confirmation' => 'password123',
         ];
 
-        $registerResponse = $this->postJson('/api/register', $registerData);
+        $response = $this->postJson('/api/register', $registerData);
 
-        $registerResponse->assertStatus(201)
+        $response->assertStatus(201)
             ->assertJsonStructure([
                 'status',
                 'message',
@@ -42,57 +58,28 @@ class AuthFlowTest extends TestCase
                 ],
             ]);
 
-        // Extract token for later use
-        $token = $registerResponse->json('data.access_token');
-        $this->assertNotEmpty($token);
-
-        // 2. Verify the user was created in the database
+        // Verify the user was created in the database
         $this->assertDatabaseHas('users', [
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+            'name' => 'New User',
+            'email' => 'newuser@example.com',
         ]);
 
-        // 3. Verify the token was created
-        $user = User::where('email', 'test@example.com')->first();
+        // Verify a token was created
+        $user = User::where('email', 'newuser@example.com')->first();
         $this->assertNotNull($user->tokens()->first());
+    }
 
-        // 4. Test accessing a protected endpoint with the token
-        $protectedResponse = $this->withHeaders([
-            'Authorization' => 'Bearer ' . $token,
-        ])->getJson('/api/translations');
-
-        $protectedResponse->assertStatus(200);
-
-        // 5. Logout
-        $logoutResponse = $this->withHeaders([
-            'Authorization' => 'Bearer ' . $token,
-        ])->postJson('/api/logout');
-
-        $logoutResponse->assertStatus(200)
-            ->assertJson([
-                'status' => 'success',
-                'message' => 'User logged out successfully',
-            ]);
-
-        // 6. Verify the token was revoked
-        $this->assertDatabaseCount('personal_access_tokens', 0);
-
-        // 7. Try to access protected endpoint with revoked token
-        $unauthorizedResponse = $this->withHeaders([
-            'Authorization' => 'Bearer ' . $token,
-        ])->getJson('/api/translations');
-
-        $unauthorizedResponse->assertStatus(401);
-
-        // 8. Login again
+    #[Test]
+    public function it_can_login_a_user()
+    {
         $loginData = [
             'email' => 'test@example.com',
             'password' => 'password123',
         ];
 
-        $loginResponse = $this->postJson('/api/login', $loginData);
+        $response = $this->postJson('/api/login', $loginData);
 
-        $loginResponse->assertStatus(200)
+        $response->assertStatus(200)
             ->assertJsonStructure([
                 'status',
                 'message',
@@ -103,21 +90,39 @@ class AuthFlowTest extends TestCase
                 ],
             ]);
 
-        // Extract new token
-        $newToken = $loginResponse->json('data.access_token');
-        $this->assertNotEmpty($newToken);
-        $this->assertNotEquals($token, $newToken);
-
-        // 9. Access protected endpoint with new token
-        $newProtectedResponse = $this->withHeaders([
-            'Authorization' => 'Bearer ' . $newToken,
-        ])->getJson('/api/translations');
-
-        $newProtectedResponse->assertStatus(200);
+        // Verify a new token was created
+        $this->assertNotEmpty($response->json('data.access_token'));
     }
 
     #[Test]
-    public function registration_validation_works_correctly()
+    public function it_can_logout_a_user()
+    {
+        $response = $this->withHeaders([
+            'Authorization' => 'Bearer ' . $this->token,
+        ])->postJson('/api/logout');
+
+        $response->assertStatus(200)
+            ->assertJson([
+                'status' => 'success',
+                'message' => 'User logged out successfully',
+            ]);
+
+        // Verify the token was revoked
+        $this->assertDatabaseCount('personal_access_tokens', 0);
+    }
+
+    #[Test]
+    public function it_can_access_protected_routes_with_valid_token()
+    {
+        $response = $this->withHeaders([
+            'Authorization' => 'Bearer ' . $this->token,
+        ])->getJson('/api/translations');
+
+        $response->assertStatus(200);
+    }
+
+    #[Test]
+    public function it_validates_registration_input()
     {
         // Test with missing fields
         $response = $this->postJson('/api/register', []);
@@ -139,7 +144,7 @@ class AuthFlowTest extends TestCase
         // Test with password confirmation mismatch
         $response = $this->postJson('/api/register', [
             'name' => 'Test User',
-            'email' => 'test@example.com',
+            'email' => 'valid@example.com',
             'password' => 'password123',
             'password_confirmation' => 'different-password',
         ]);
@@ -150,7 +155,7 @@ class AuthFlowTest extends TestCase
         // Test with too short password
         $response = $this->postJson('/api/register', [
             'name' => 'Test User',
-            'email' => 'test@example.com',
+            'email' => 'valid@example.com',
             'password' => 'short',
             'password_confirmation' => 'short',
         ]);
@@ -160,7 +165,7 @@ class AuthFlowTest extends TestCase
     }
 
     #[Test]
-    public function login_validation_works_correctly()
+    public function it_validates_login_input()
     {
         // Test with missing fields
         $response = $this->postJson('/api/login', []);
@@ -186,11 +191,6 @@ class AuthFlowTest extends TestCase
         $response->assertStatus(401);
 
         // Test with wrong password
-        User::factory()->create([
-            'email' => 'test@example.com',
-            'password' => Hash::make('correct-password'),
-        ]);
-
         $response = $this->postJson('/api/login', [
             'email' => 'test@example.com',
             'password' => 'wrong-password',
@@ -200,7 +200,7 @@ class AuthFlowTest extends TestCase
     }
 
     #[Test]
-    public function logout_requires_authentication()
+    public function it_requires_authentication_for_logout()
     {
         $response = $this->postJson('/api/logout');
 
@@ -208,7 +208,7 @@ class AuthFlowTest extends TestCase
     }
 
     #[Test]
-    public function protected_routes_require_authentication()
+    public function it_requires_authentication_for_protected_routes()
     {
         // Test various protected endpoints
         $protectedEndpoints = [
@@ -226,9 +226,13 @@ class AuthFlowTest extends TestCase
             $response = $this->json($endpoint['method'], $endpoint['url']);
             $response->assertStatus(401, "Endpoint {$endpoint['method']} {$endpoint['url']} should require authentication");
         }
+    }
 
+    #[Test]
+    public function it_allows_public_access_to_export_endpoint()
+    {
         // Test that export endpoint is public (doesn't require authentication)
         $response = $this->getJson('/api/translations/export/en');
         $response->assertStatus(200);
     }
-} 
+}

@@ -4,6 +4,7 @@ namespace Tests\Performance;
 
 use App\Models\Tag;
 use App\Models\Translation;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use PHPUnit\Framework\Attributes\Test;
@@ -40,7 +41,7 @@ class PerformanceTest extends TestCase
     public function all_endpoints_respond_in_under_200ms()
     {
         // Create test data
-        $user = \App\Models\User::factory()->create();
+        $user = User::factory()->create();
         $token = $user->createToken('test-token')->plainTextToken;
 
         // Create tags
