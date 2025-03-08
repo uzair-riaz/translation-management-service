@@ -61,6 +61,7 @@ class GenerateTranslations extends Command
         $tagNames = explode(',', $this->option('tags'));
         
         $this->info("Generating {$count} translations for locales: " . implode(', ', $locales));
+        $this->output->newLine();
         
         // Create tags first
         $tags = [];
@@ -70,25 +71,37 @@ class GenerateTranslations extends Command
         }
         
         $this->info('Tags created: ' . implode(', ', $tagNames));
+        $this->output->newLine();
         
         // Calculate translations per locale
         $translationsPerLocale = (int) ceil($count / count($locales));
         
-        $bar = $this->output->createProgressBar($count);
-        $bar->start();
-        
+        // Initialize progress tracking
         $totalCreated = 0;
         
         foreach ($locales as $locale) {
-            $this->generateTranslationsForLocale($locale, $translationsPerLocale, $tags, $bar, $totalCreated);
+            $this->info("Generating translations for locale: {$locale}");
+            
+            // Create a progress bar for this locale
+            $localeCount = min($translationsPerLocale, $count - $totalCreated);
+            if ($localeCount <= 0) {
+                break;
+            }
+            
+            $bar = $this->output->createProgressBar($localeCount);
+            $bar->setFormat(' %current%/%max% [%bar%] %percent:3s%% %elapsed:6s%/%estimated:-6s%');
+            $bar->start();
+            
+            $this->generateTranslationsForLocale($locale, $localeCount, $tags, $bar, $totalCreated);
+            
+            $bar->finish();
+            $this->output->newLine(2);
             
             if ($totalCreated >= $count) {
                 break;
             }
         }
         
-        $bar->finish();
-        $this->newLine();
         $this->info("Generated {$totalCreated} translations successfully!");
     }
     
@@ -104,14 +117,13 @@ class GenerateTranslations extends Command
      */
     private function generateTranslationsForLocale($locale, $count, $tags, $bar, &$totalCreated)
     {
-        $this->info("Generating translations for locale: {$locale}");
-        
         // Use chunks to avoid memory issues
         $chunkSize = 1000;
         $chunks = (int) ceil($count / $chunkSize);
+        $localeCreated = 0;
         
         for ($chunk = 0; $chunk < $chunks; $chunk++) {
-            $remainingCount = $count - ($chunk * $chunkSize);
+            $remainingCount = $count - $localeCreated;
             $currentChunkSize = min($chunkSize, $remainingCount);
             
             if ($currentChunkSize <= 0) {
@@ -122,11 +134,13 @@ class GenerateTranslations extends Command
             
             try {
                 for ($i = 0; $i < $currentChunkSize; $i++) {
-                    $keyIndex = $chunk * $chunkSize + $i;
+                    $keyIndex = $totalCreated + $localeCreated;
                     $key = "test.key.{$keyIndex}";
                     
                     // Check if translation already exists
                     if ($this->translationRepository->existsByKeyAndLocale($key, $locale)) {
+                        // Still advance the bar even if we skip
+                        $bar->advance();
                         continue;
                     }
                     
@@ -153,6 +167,7 @@ class GenerateTranslations extends Command
                     $this->translationRepository->attachTags($translation->id, $tagIds);
                     
                     $totalCreated++;
+                    $localeCreated++;
                     $bar->advance();
                     
                     // If we've reached the total count, break out
@@ -164,6 +179,7 @@ class GenerateTranslations extends Command
                 DB::commit();
             } catch (\Exception $e) {
                 DB::rollBack();
+                $this->output->newLine();
                 $this->error("Error generating translations: {$e->getMessage()}");
                 throw $e;
             }
