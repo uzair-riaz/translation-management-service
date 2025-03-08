@@ -1,0 +1,62 @@
+version: '3'
+
+services:
+  # Laravel Service
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: translation-app
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      DB_CONNECTION: mysql
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_DATABASE: translations
+      DB_USERNAME: root
+      DB_PASSWORD: root
+      REDIS_HOST: redis
+    volumes:
+      - .:/app
+    depends_on:
+      - db
+      - redis
+    networks:
+      - translation-network
+
+  # MySQL Service
+  db:
+    image: mysql:8.0
+    container_name: translation-db
+    restart: unless-stopped
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: translations
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - dbdata:/var/lib/mysql
+    networks:
+      - translation-network
+
+  # Redis Service
+  redis:
+    image: redis:alpine
+    container_name: translation-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    networks:
+      - translation-network
+
+# Docker Networks
+networks:
+  translation-network:
+    driver: bridge
+
+# Volumes
+volumes:
+  dbdata:
+    driver: local
