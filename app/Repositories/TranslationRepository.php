@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Interfaces\TranslationRepositoryInterface;
 use App\Models\Translation;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 
 class TranslationRepository extends BaseRepository implements TranslationRepositoryInterface
@@ -23,9 +24,9 @@ class TranslationRepository extends BaseRepository implements TranslationReposit
      *
      * @param string $locale
      * @param int $perPage
-     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
+     * @return LengthAwarePaginator
      */
-    public function getByLocale(string $locale, int $perPage = 15): \Illuminate\Contracts\Pagination\LengthAwarePaginator
+    public function getByLocale(string $locale, int $perPage = 15): LengthAwarePaginator
     {
         return $this->model->with('tags')
             ->locale($locale)
@@ -38,9 +39,9 @@ class TranslationRepository extends BaseRepository implements TranslationReposit
      * @param string $tag
      * @param string|null $locale
      * @param int $perPage
-     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
+     * @return LengthAwarePaginator
      */
-    public function searchByTag(string $tag, ?string $locale = null, int $perPage = 15): \Illuminate\Contracts\Pagination\LengthAwarePaginator
+    public function searchByTag(string $tag, ?string $locale = null, int $perPage = 15): LengthAwarePaginator
     {
         $query = $this->model->whereHas('tags', function ($query) use ($tag) {
             $query->where('name', 'LIKE', "%$tag%");
@@ -59,9 +60,9 @@ class TranslationRepository extends BaseRepository implements TranslationReposit
      * @param string $key
      * @param string|null $locale
      * @param int $perPage
-     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
+     * @return LengthAwarePaginator
      */
-    public function searchByKey(string $key, ?string $locale = null, int $perPage = 15): \Illuminate\Contracts\Pagination\LengthAwarePaginator
+    public function searchByKey(string $key, ?string $locale = null, int $perPage = 15): LengthAwarePaginator
     {
         $query = $this->model->searchByKey($key);
 
@@ -78,9 +79,9 @@ class TranslationRepository extends BaseRepository implements TranslationReposit
      * @param string $content
      * @param string|null $locale
      * @param int $perPage
-     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
+     * @return LengthAwarePaginator
      */
-    public function searchByContent(string $content, ?string $locale = null, int $perPage = 15): \Illuminate\Contracts\Pagination\LengthAwarePaginator
+    public function searchByContent(string $content, ?string $locale = null, int $perPage = 15): LengthAwarePaginator
     {
         // Use MySQL's MATCH AGAINST for fulltext search which is much faster
         // than LIKE queries for large datasets
