@@ -308,8 +308,10 @@ class TranslationTest extends TestCase
         // Create translations for a specific locale
         Translation::factory()->count(5)->create(['locale' => 'en']);
 
-        // Make the request (no authentication required for export)
-        $response = $this->getJson('/api/translations/export/en');
+        // Make the request with authentication
+        $response = $this->withHeaders([
+            'Authorization' => 'Bearer ' . $this->token,
+        ])->getJson('/api/translations/export/en');
 
         // Assert the response
         $response->assertStatus(200)

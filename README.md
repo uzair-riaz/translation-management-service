@@ -83,7 +83,7 @@ php artisan translations:generate 1000
 
 ### Export
 
-- **Export**: `GET /api/translations/export/{locale?}` (public endpoint)
+- **Export**: `GET /api/translations/export/{locale?}`
 
 ## Testing
 

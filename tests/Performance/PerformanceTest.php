@@ -16,13 +16,19 @@ class PerformanceTest extends TestCase
     #[Test]
     public function export_endpoint_responds_in_under_500ms_with_large_dataset()
     {
+        // Create a user and token for authentication
+        $user = User::factory()->create();
+        $token = $user->createToken('test-token')->plainTextToken;
+        
         // Create a large dataset (1000 translations)
         $this->createLargeDataset(1000, 'en');
 
         // Measure response time
         $startTime = microtime(true);
 
-        $response = $this->getJson('/api/translations/export/en');
+        $response = $this->withHeaders([
+            'Authorization' => 'Bearer ' . $token,
+        ])->getJson('/api/translations/export/en');
 
         $endTime = microtime(true);
         $responseTime = ($endTime - $startTime) * 1000; // Convert to milliseconds

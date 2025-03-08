@@ -22,15 +22,14 @@ Route::post('/login', [AuthController::class, 'login']);
 // Protected routes
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
-    
+
     // Translation routes
     Route::apiResource('translations', TranslationController::class);
-    
+
     // Search translations
     Route::get('/translations/search/tags/{tag}', [TranslationController::class, 'searchByTag']);
     Route::get('/translations/search/keys/{key}', [TranslationController::class, 'searchByKey']);
     Route::get('/translations/search/content/{content}', [TranslationController::class, 'searchByContent']);
-});
 
-// Public export endpoint (no authentication required for better performance)
-Route::get('/translations/export/{locale?}', [TranslationController::class, 'export']); 
+    Route::get('/translations/export/{locale?}', [TranslationController::class, 'export']);
+});

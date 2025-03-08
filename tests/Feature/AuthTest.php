@@ -220,6 +220,7 @@ class AuthTest extends TestCase
             ['method' => 'GET', 'url' => '/api/translations/search/tags/web'],
             ['method' => 'GET', 'url' => '/api/translations/search/keys/welcome'],
             ['method' => 'GET', 'url' => '/api/translations/search/content/welcome'],
+            ['method' => 'GET', 'url' => '/api/translations/export/en'],
         ];
 
         foreach ($protectedEndpoints as $endpoint) {
@@ -229,10 +230,17 @@ class AuthTest extends TestCase
     }
 
     #[Test]
-    public function it_allows_public_access_to_export_endpoint()
+    public function it_requires_authentication_for_export_endpoint()
     {
-        // Test that export endpoint is public (doesn't require authentication)
+        // Test that export endpoint now requires authentication
         $response = $this->getJson('/api/translations/export/en');
-        $response->assertStatus(200);
+        $response->assertStatus(401);
+        
+        // Test that authenticated users can access the export endpoint
+        $authenticatedResponse = $this->withHeaders([
+            'Authorization' => 'Bearer ' . $this->token,
+        ])->getJson('/api/translations/export/en');
+        
+        $authenticatedResponse->assertStatus(200);
     }
 }
