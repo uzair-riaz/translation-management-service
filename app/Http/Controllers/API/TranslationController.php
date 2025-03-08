@@ -8,6 +8,7 @@ use App\Http\Requests\UpdateTranslationRequest;
 use App\Interfaces\TranslationServiceInterface;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 
 class TranslationController extends Controller
 {
@@ -32,7 +33,7 @@ class TranslationController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function index(Request $request)
+    public function index(Request $request): JsonResponse
     {
         $locale = $request->has('locale') ? $request->locale : null;
         $translations = $this->translationService->getAllTranslations($locale);
@@ -49,7 +50,7 @@ class TranslationController extends Controller
      * @param  \App\Http\Requests\StoreTranslationRequest  $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function store(StoreTranslationRequest $request)
+    public function store(StoreTranslationRequest $request): JsonResponse
     {
         try {
             $translation = $this->translationService->createTranslation($request->validated());
@@ -82,7 +83,7 @@ class TranslationController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function show($id)
+    public function show($id): JsonResponse
     {
         try {
             $translation = $this->translationService->getTranslationById($id);
@@ -106,7 +107,7 @@ class TranslationController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function update(UpdateTranslationRequest $request, $id)
+    public function update(UpdateTranslationRequest $request, $id): JsonResponse
     {
         try {
             $translation = $this->translationService->updateTranslation($id, $request->validated());
@@ -145,7 +146,7 @@ class TranslationController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function destroy($id)
+    public function destroy($id): JsonResponse
     {
         try {
             $this->translationService->deleteTranslation($id);
@@ -180,7 +181,7 @@ class TranslationController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function searchByTag($tag, Request $request)
+    public function searchByTag($tag, Request $request): JsonResponse
     {
         try {
             $locale = $request->has('locale') ? $request->locale : null;
@@ -212,7 +213,7 @@ class TranslationController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function searchByKey($key, Request $request)
+    public function searchByKey($key, Request $request): JsonResponse
     {
         try {
             $locale = $request->has('locale') ? $request->locale : null;
@@ -244,7 +245,7 @@ class TranslationController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function searchByContent($content, Request $request)
+    public function searchByContent($content, Request $request): JsonResponse
     {
         try {
             $locale = $request->has('locale') ? $request->locale : null;
@@ -275,7 +276,7 @@ class TranslationController extends Controller
      * @param  string|null  $locale
      * @return \Illuminate\Http\JsonResponse
      */
-    public function export($locale = null)
+    public function export($locale = null): JsonResponse
     {
         try {
             $translations = $this->translationService->exportTranslations($locale);

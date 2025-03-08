@@ -42,7 +42,7 @@ class TranslationService implements TranslationServiceInterface
      * @param int $perPage
      * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
      */
-    public function getAllTranslations(?string $locale = null, int $perPage = 50)
+    public function getAllTranslations(?string $locale = null, int $perPage = 50): \Illuminate\Contracts\Pagination\LengthAwarePaginator
     {
         $cacheKey = $locale ? "translations.list.{$locale}.{$perPage}" : "translations.list.all.{$perPage}";
         
@@ -62,7 +62,7 @@ class TranslationService implements TranslationServiceInterface
      * @return \App\Models\Translation
      * @throws \Exception
      */
-    public function createTranslation(array $data)
+    public function createTranslation(array $data): \App\Models\Translation
     {
         // Check if translation already exists
         if ($this->translationRepository->existsByKeyAndLocale($data['key'], $data['locale'])) {
@@ -110,7 +110,7 @@ class TranslationService implements TranslationServiceInterface
      * @return \App\Models\Translation
      * @throws ModelNotFoundException
      */
-    public function getTranslationById(int $id)
+    public function getTranslationById(int $id): \App\Models\Translation
     {
         $translation = $this->translationRepository->find($id);
 
@@ -132,7 +132,7 @@ class TranslationService implements TranslationServiceInterface
      * @throws ModelNotFoundException
      * @throws \Exception
      */
-    public function updateTranslation(int $id, array $data)
+    public function updateTranslation(int $id, array $data): \App\Models\Translation
     {
         $translation = $this->translationRepository->find($id);
 
@@ -180,7 +180,7 @@ class TranslationService implements TranslationServiceInterface
      * @throws ModelNotFoundException
      * @throws \Exception
      */
-    public function deleteTranslation(int $id)
+    public function deleteTranslation(int $id): bool
     {
         $translation = $this->translationRepository->find($id);
 
@@ -217,7 +217,7 @@ class TranslationService implements TranslationServiceInterface
      * @param int $perPage
      * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
      */
-    public function searchByTag(string $tag, ?string $locale = null, int $perPage = 50)
+    public function searchByTag(string $tag, ?string $locale = null, int $perPage = 50): \Illuminate\Contracts\Pagination\LengthAwarePaginator
     {
         $cacheKey = "translations.search.tag.{$tag}." . ($locale ?? 'all') . ".{$perPage}";
         
@@ -234,7 +234,7 @@ class TranslationService implements TranslationServiceInterface
      * @param int $perPage
      * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
      */
-    public function searchByKey(string $key, ?string $locale = null, int $perPage = 50)
+    public function searchByKey(string $key, ?string $locale = null, int $perPage = 50): \Illuminate\Contracts\Pagination\LengthAwarePaginator
     {
         $cacheKey = "translations.search.key.{$key}." . ($locale ?? 'all') . ".{$perPage}";
         
@@ -251,7 +251,7 @@ class TranslationService implements TranslationServiceInterface
      * @param int $perPage
      * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
      */
-    public function searchByContent(string $content, ?string $locale = null, int $perPage = 50)
+    public function searchByContent(string $content, ?string $locale = null, int $perPage = 50): \Illuminate\Contracts\Pagination\LengthAwarePaginator
     {
         $cacheKey = "translations.search.content.{$content}." . ($locale ?? 'all') . ".{$perPage}";
         
@@ -266,7 +266,7 @@ class TranslationService implements TranslationServiceInterface
      * @param string|null $locale
      * @return array
      */
-    public function exportTranslations(?string $locale = null)
+    public function exportTranslations(?string $locale = null): array
     {
         // If no locale is provided, use the default locale
         $locale = $locale ?? config('app.locale');
@@ -285,7 +285,7 @@ class TranslationService implements TranslationServiceInterface
      * @param string $locale
      * @return void
      */
-    protected function clearTranslationCache(string $locale)
+    protected function clearTranslationCache(string $locale): void
     {
         // Clear all related caches for this locale
         Cache::forget("translations.{$locale}");

@@ -3,7 +3,9 @@
 namespace App\Repositories;
 
 use App\Interfaces\RepositoryInterface;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 abstract class BaseRepository implements RepositoryInterface
 {
@@ -28,7 +30,7 @@ abstract class BaseRepository implements RepositoryInterface
      * @param array $columns
      * @return \Illuminate\Database\Eloquent\Collection
      */
-    public function all(array $columns = ['*'])
+    public function all(array $columns = ['*']): Collection
     {
         return $this->model->all($columns);
     }
@@ -40,7 +42,7 @@ abstract class BaseRepository implements RepositoryInterface
      * @param array $columns
      * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
      */
-    public function paginate(int $perPage = 15, array $columns = ['*'])
+    public function paginate(int $perPage = 15, array $columns = ['*']): LengthAwarePaginator
     {
         return $this->model->paginate($perPage, $columns);
     }
@@ -51,7 +53,7 @@ abstract class BaseRepository implements RepositoryInterface
      * @param array $data
      * @return Model
      */
-    public function create(array $data)
+    public function create(array $data): Model
     {
         return $this->model->create($data);
     }
@@ -63,7 +65,7 @@ abstract class BaseRepository implements RepositoryInterface
      * @param int $id
      * @return Model
      */
-    public function update(array $data, int $id)
+    public function update(array $data, int $id): Model
     {
         $record = $this->find($id);
         $record->update($data);
@@ -76,7 +78,7 @@ abstract class BaseRepository implements RepositoryInterface
      * @param int $id
      * @return bool
      */
-    public function delete(int $id)
+    public function delete(int $id): bool
     {
         return $this->model->destroy($id);
     }
@@ -88,7 +90,7 @@ abstract class BaseRepository implements RepositoryInterface
      * @param array $columns
      * @return Model|null
      */
-    public function find(int $id, array $columns = ['*'])
+    public function find(int $id, array $columns = ['*']): ?Model
     {
         return $this->model->find($id, $columns);
     }
@@ -100,7 +102,7 @@ abstract class BaseRepository implements RepositoryInterface
      * @param array $columns
      * @return Model|null
      */
-    public function findBy(array $criteria, array $columns = ['*'])
+    public function findBy(array $criteria, array $columns = ['*']): ?Model
     {
         return $this->model->where($criteria)->first($columns);
     }

@@ -2,6 +2,8 @@
 
 namespace App\Interfaces;
 
+use App\Models\Tag;
+
 interface TagRepositoryInterface extends RepositoryInterface
 {
     /**
@@ -10,7 +12,7 @@ interface TagRepositoryInterface extends RepositoryInterface
      * @param string $name
      * @return \App\Models\Tag
      */
-    public function findOrCreate(string $name);
+    public function findOrCreate(string $name): Tag;
 
     /**
      * Get tag IDs from tag names.
@@ -18,5 +20,5 @@ interface TagRepositoryInterface extends RepositoryInterface
      * @param array $tagNames
      * @return array
      */
-    public function getTagIdsFromNames(array $tagNames);
+    public function getTagIdsFromNames(array $tagNames): array;
 } 

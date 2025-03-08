@@ -223,7 +223,3 @@ The test suite achieves >95% code coverage by testing:
 - All validation rules
 - Error handling and edge cases
 - Performance requirements
-
-## License
-
-This project is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).

@@ -7,6 +7,7 @@ use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterRequest;
 use App\Interfaces\AuthServiceInterface;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
@@ -32,7 +33,7 @@ class AuthController extends Controller
      * @param  \App\Http\Requests\RegisterRequest  $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function register(RegisterRequest $request)
+    public function register(RegisterRequest $request): JsonResponse
     {
         try {
             $result = $this->authService->register($request->validated());
@@ -62,7 +63,7 @@ class AuthController extends Controller
      * @param  \App\Http\Requests\LoginRequest  $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function login(LoginRequest $request)
+    public function login(LoginRequest $request): JsonResponse
     {
         try {
             $result = $this->authService->login($request->validated());
@@ -97,7 +98,7 @@ class AuthController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function logout(Request $request)
+    public function logout(Request $request): JsonResponse
     {
         try {
             $this->authService->logout($request->user()->id);

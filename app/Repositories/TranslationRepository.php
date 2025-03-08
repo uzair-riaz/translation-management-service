@@ -25,7 +25,7 @@ class TranslationRepository extends BaseRepository implements TranslationReposit
      * @param int $perPage
      * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
      */
-    public function getByLocale(string $locale, int $perPage = 15)
+    public function getByLocale(string $locale, int $perPage = 15): \Illuminate\Contracts\Pagination\LengthAwarePaginator
     {
         return $this->model->with('tags')
             ->locale($locale)
@@ -40,7 +40,7 @@ class TranslationRepository extends BaseRepository implements TranslationReposit
      * @param int $perPage
      * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
      */
-    public function searchByTag(string $tag, ?string $locale = null, int $perPage = 15)
+    public function searchByTag(string $tag, ?string $locale = null, int $perPage = 15): \Illuminate\Contracts\Pagination\LengthAwarePaginator
     {
         $query = $this->model->whereHas('tags', function ($query) use ($tag) {
             $query->where('name', 'LIKE', "%{$tag}%");
@@ -61,7 +61,7 @@ class TranslationRepository extends BaseRepository implements TranslationReposit
      * @param int $perPage
      * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
      */
-    public function searchByKey(string $key, ?string $locale = null, int $perPage = 15)
+    public function searchByKey(string $key, ?string $locale = null, int $perPage = 15): \Illuminate\Contracts\Pagination\LengthAwarePaginator
     {
         $query = $this->model->searchByKey($key);
 
@@ -80,7 +80,7 @@ class TranslationRepository extends BaseRepository implements TranslationReposit
      * @param int $perPage
      * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
      */
-    public function searchByContent(string $content, ?string $locale = null, int $perPage = 15)
+    public function searchByContent(string $content, ?string $locale = null, int $perPage = 15): \Illuminate\Contracts\Pagination\LengthAwarePaginator
     {
         // Use MySQL's MATCH AGAINST for fulltext search which is much faster
         // than LIKE queries for large datasets
@@ -99,7 +99,7 @@ class TranslationRepository extends BaseRepository implements TranslationReposit
      * @param string $locale
      * @return array
      */
-    public function exportByLocale(string $locale)
+    public function exportByLocale(string $locale): array
     {
         // Use a more efficient query for large datasets
         // Select only the needed columns and use a cursor for memory efficiency
@@ -124,7 +124,7 @@ class TranslationRepository extends BaseRepository implements TranslationReposit
      * @param array $tagIds
      * @return void
      */
-    public function attachTags(int $translationId, array $tagIds)
+    public function attachTags(int $translationId, array $tagIds): void
     {
         $translation = $this->find($translationId);
         $translation->tags()->attach($tagIds);
@@ -137,7 +137,7 @@ class TranslationRepository extends BaseRepository implements TranslationReposit
      * @param array $tagIds
      * @return void
      */
-    public function syncTags(int $translationId, array $tagIds)
+    public function syncTags(int $translationId, array $tagIds): void
     {
         $translation = $this->find($translationId);
         $translation->tags()->sync($tagIds);
@@ -150,7 +150,7 @@ class TranslationRepository extends BaseRepository implements TranslationReposit
      * @param string $locale
      * @return bool
      */
-    public function existsByKeyAndLocale(string $key, string $locale)
+    public function existsByKeyAndLocale(string $key, string $locale): bool
     {
         return $this->model->where('key', $key)
             ->where('locale', $locale)

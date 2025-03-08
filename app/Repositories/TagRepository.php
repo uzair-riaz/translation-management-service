@@ -23,7 +23,7 @@ class TagRepository extends BaseRepository implements TagRepositoryInterface
      * @param string $name
      * @return \App\Models\Tag
      */
-    public function findOrCreate(string $name)
+    public function findOrCreate(string $name): Tag
     {
         return $this->model->firstOrCreate(['name' => $name]);
     }
@@ -34,7 +34,7 @@ class TagRepository extends BaseRepository implements TagRepositoryInterface
      * @param array $tagNames
      * @return array
      */
-    public function getTagIdsFromNames(array $tagNames)
+    public function getTagIdsFromNames(array $tagNames): array
     {
         $tagIds = [];
         

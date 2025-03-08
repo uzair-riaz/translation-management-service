@@ -2,6 +2,9 @@
 
 namespace App\Interfaces;
 
+use App\Models\Translation;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+
 interface TranslationServiceInterface
 {
     /**
@@ -11,7 +14,7 @@ interface TranslationServiceInterface
      * @param int $perPage
      * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
      */
-    public function getAllTranslations(?string $locale = null, int $perPage = 50);
+    public function getAllTranslations(?string $locale = null, int $perPage = 50): LengthAwarePaginator;
 
     /**
      * Create a new translation.
@@ -19,7 +22,7 @@ interface TranslationServiceInterface
      * @param array $data
      * @return \App\Models\Translation
      */
-    public function createTranslation(array $data);
+    public function createTranslation(array $data): Translation;
 
     /**
      * Get a translation by ID.
@@ -27,7 +30,7 @@ interface TranslationServiceInterface
      * @param int $id
      * @return \App\Models\Translation
      */
-    public function getTranslationById(int $id);
+    public function getTranslationById(int $id): Translation;
 
     /**
      * Update a translation.
@@ -36,7 +39,7 @@ interface TranslationServiceInterface
      * @param array $data
      * @return \App\Models\Translation
      */
-    public function updateTranslation(int $id, array $data);
+    public function updateTranslation(int $id, array $data): Translation;
 
     /**
      * Delete a translation.
@@ -44,7 +47,7 @@ interface TranslationServiceInterface
      * @param int $id
      * @return bool
      */
-    public function deleteTranslation(int $id);
+    public function deleteTranslation(int $id): bool;
 
     /**
      * Search translations by tag.
@@ -54,7 +57,7 @@ interface TranslationServiceInterface
      * @param int $perPage
      * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
      */
-    public function searchByTag(string $tag, ?string $locale = null, int $perPage = 50);
+    public function searchByTag(string $tag, ?string $locale = null, int $perPage = 50): LengthAwarePaginator;
 
     /**
      * Search translations by key.
@@ -64,7 +67,7 @@ interface TranslationServiceInterface
      * @param int $perPage
      * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
      */
-    public function searchByKey(string $key, ?string $locale = null, int $perPage = 50);
+    public function searchByKey(string $key, ?string $locale = null, int $perPage = 50): LengthAwarePaginator;
 
     /**
      * Search translations by content.
@@ -74,7 +77,7 @@ interface TranslationServiceInterface
      * @param int $perPage
      * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
      */
-    public function searchByContent(string $content, ?string $locale = null, int $perPage = 50);
+    public function searchByContent(string $content, ?string $locale = null, int $perPage = 50): LengthAwarePaginator;
 
     /**
      * Export translations for a specific locale.
@@ -82,5 +85,5 @@ interface TranslationServiceInterface
      * @param string|null $locale
      * @return array
      */
-    public function exportTranslations(?string $locale = null);
+    public function exportTranslations(?string $locale = null): array;
 } 

@@ -2,6 +2,10 @@
 
 namespace App\Interfaces;
 
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+
 interface RepositoryInterface
 {
     /**
@@ -10,7 +14,7 @@ interface RepositoryInterface
      * @param array $columns
      * @return \Illuminate\Database\Eloquent\Collection
      */
-    public function all(array $columns = ['*']);
+    public function all(array $columns = ['*']): Collection;
 
     /**
      * Get paginated resources.
@@ -19,7 +23,7 @@ interface RepositoryInterface
      * @param array $columns
      * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
      */
-    public function paginate(int $perPage = 15, array $columns = ['*']);
+    public function paginate(int $perPage = 15, array $columns = ['*']): LengthAwarePaginator;
 
     /**
      * Create a new resource.
@@ -27,7 +31,7 @@ interface RepositoryInterface
      * @param array $data
      * @return \Illuminate\Database\Eloquent\Model
      */
-    public function create(array $data);
+    public function create(array $data): Model;
 
     /**
      * Update a resource.
@@ -36,7 +40,7 @@ interface RepositoryInterface
      * @param int $id
      * @return \Illuminate\Database\Eloquent\Model
      */
-    public function update(array $data, int $id);
+    public function update(array $data, int $id): Model;
 
     /**
      * Delete a resource.
@@ -44,7 +48,7 @@ interface RepositoryInterface
      * @param int $id
      * @return bool
      */
-    public function delete(int $id);
+    public function delete(int $id): bool;
 
     /**
      * Find a resource by ID.
@@ -53,7 +57,7 @@ interface RepositoryInterface
      * @param array $columns
      * @return \Illuminate\Database\Eloquent\Model|null
      */
-    public function find(int $id, array $columns = ['*']);
+    public function find(int $id, array $columns = ['*']): ?Model;
 
     /**
      * Find a resource by specific criteria.
@@ -62,5 +66,5 @@ interface RepositoryInterface
      * @param array $columns
      * @return \Illuminate\Database\Eloquent\Model|null
      */
-    public function findBy(array $criteria, array $columns = ['*']);
+    public function findBy(array $criteria, array $columns = ['*']): ?Model;
 } 

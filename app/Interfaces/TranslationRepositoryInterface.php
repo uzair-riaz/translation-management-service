@@ -2,6 +2,8 @@
 
 namespace App\Interfaces;
 
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+
 interface TranslationRepositoryInterface extends RepositoryInterface
 {
     /**
@@ -11,7 +13,7 @@ interface TranslationRepositoryInterface extends RepositoryInterface
      * @param int $perPage
      * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
      */
-    public function getByLocale(string $locale, int $perPage = 15);
+    public function getByLocale(string $locale, int $perPage = 15): LengthAwarePaginator;
 
     /**
      * Search translations by tag.
@@ -21,7 +23,7 @@ interface TranslationRepositoryInterface extends RepositoryInterface
      * @param int $perPage
      * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
      */
-    public function searchByTag(string $tag, ?string $locale = null, int $perPage = 15);
+    public function searchByTag(string $tag, ?string $locale = null, int $perPage = 15): LengthAwarePaginator;
 
     /**
      * Search translations by key.
@@ -31,7 +33,7 @@ interface TranslationRepositoryInterface extends RepositoryInterface
      * @param int $perPage
      * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
      */
-    public function searchByKey(string $key, ?string $locale = null, int $perPage = 15);
+    public function searchByKey(string $key, ?string $locale = null, int $perPage = 15): LengthAwarePaginator;
 
     /**
      * Search translations by content.
@@ -41,7 +43,7 @@ interface TranslationRepositoryInterface extends RepositoryInterface
      * @param int $perPage
      * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
      */
-    public function searchByContent(string $content, ?string $locale = null, int $perPage = 15);
+    public function searchByContent(string $content, ?string $locale = null, int $perPage = 15): LengthAwarePaginator;
 
     /**
      * Export translations for a specific locale.
@@ -49,7 +51,7 @@ interface TranslationRepositoryInterface extends RepositoryInterface
      * @param string $locale
      * @return array
      */
-    public function exportByLocale(string $locale);
+    public function exportByLocale(string $locale): array;
 
     /**
      * Attach tags to a translation.
@@ -58,7 +60,7 @@ interface TranslationRepositoryInterface extends RepositoryInterface
      * @param array $tagIds
      * @return void
      */
-    public function attachTags(int $translationId, array $tagIds);
+    public function attachTags(int $translationId, array $tagIds): void;
 
     /**
      * Sync tags for a translation.
@@ -67,5 +69,14 @@ interface TranslationRepositoryInterface extends RepositoryInterface
      * @param array $tagIds
      * @return void
      */
-    public function syncTags(int $translationId, array $tagIds);
+    public function syncTags(int $translationId, array $tagIds): void;
+
+    /**
+     * Check if a translation exists by key and locale.
+     *
+     * @param string $key
+     * @param string $locale
+     * @return bool
+     */
+    public function existsByKeyAndLocale(string $key, string $locale): bool;
 } 
