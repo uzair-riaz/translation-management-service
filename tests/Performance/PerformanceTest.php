@@ -23,6 +23,7 @@ class PerformanceTest extends TestCase
 
         // Create a large dataset (1000 translations)
         $this->createLargeDataset(1000, 'en');
+        Cache::forget("translations.export.en");
 
         // Measure response time
         $startTime = microtime(true);
@@ -38,7 +39,7 @@ class PerformanceTest extends TestCase
         $response->assertStatus(200);
 
         // Assert response time is under 500ms
-//        $this->assertLessThan(500, $responseTime, "Export endpoint response time ({$responseTime}ms) exceeds 500ms");
+        $this->assertLessThan(500, $responseTime, "Export endpoint response time ({$responseTime}ms) exceeds 500ms");
 
         // Assert the response contains all translations
         $this->assertEquals(1000, count($response->json()));

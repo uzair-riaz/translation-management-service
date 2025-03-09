@@ -54,16 +54,16 @@ class AuthService implements AuthServiceInterface
      */
     public function login(array $credentials): array
     {
-        if (!Auth::attempt($credentials)) {
-            throw ValidationException::withMessages([
-                'email' => ['The provided credentials are incorrect.'],
-            ]);
-        }
-
         DB::beginTransaction();
         
         try {
-            $user = User::where('email', $credentials['email'])->firstOrFail();
+            $user = User::where('email', $credentials['email'])->first();
+            
+            if (!$user || !Hash::check($credentials['password'], $user->password)) {
+                throw ValidationException::withMessages([
+                    'email' => ['The provided credentials are incorrect.'],
+                ]);
+            }
             
             // Delete existing tokens before creating a new one
             $user->tokens()->delete();
