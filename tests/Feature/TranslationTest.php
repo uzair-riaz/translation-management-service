@@ -69,6 +69,52 @@ class TranslationTest extends TestCase
     }
 
     #[Test]
+    public function it_can_list_translations_with_limit_and_offset()
+    {
+        // Create some translations
+        Translation::factory()->count(10)->create();
+
+        // Test with limit only
+        $responseWithLimit = $this->withHeaders([
+            'Authorization' => 'Bearer ' . $this->token,
+        ])->getJson('/api/translations?limit=3');
+
+        $responseWithLimit->assertStatus(200);
+        $this->assertCount(3, $responseWithLimit->json('data.data'));
+
+        // Test with limit and offset
+        $responseWithOffset = $this->withHeaders([
+            'Authorization' => 'Bearer ' . $this->token,
+        ])->getJson('/api/translations?limit=3&offset=3');
+
+        $responseWithOffset->assertStatus(200);
+        $this->assertCount(3, $responseWithOffset->json('data.data'));
+        
+        // Ensure different pages have different data
+        $this->assertNotEquals(
+            $responseWithLimit->json('data.data.0.id'),
+            $responseWithOffset->json('data.data.0.id')
+        );
+    }
+
+    #[Test]
+    public function it_can_list_translations_by_locale()
+    {
+        // Create translations with different locales
+        Translation::factory()->count(3)->create(['locale' => 'en']);
+        Translation::factory()->count(2)->create(['locale' => 'fr']);
+
+        // Make the request with authentication
+        $response = $this->withHeaders([
+            'Authorization' => 'Bearer ' . $this->token,
+        ])->getJson('/api/translations?locale=en');
+
+        // Assert the response
+        $response->assertStatus(200);
+        $this->assertEquals(3, $response->json('data.total'));
+    }
+
+    #[Test]
     public function it_can_create_a_translation()
     {
         // Create test data
@@ -210,96 +256,155 @@ class TranslationTest extends TestCase
     #[Test]
     public function it_can_search_translations_by_tag()
     {
-        // Create a translation with tags
+        // Create a tag
+        $tag = Tag::factory()->create(['name' => 'web']);
+        
+        // Create translations and attach the tag
         $translation = Translation::factory()->create();
-        $tag = Tag::factory()->create(['name' => 'test-tag']);
         $translation->tags()->attach($tag->id);
+        
+        // Create another translation without the tag
+        Translation::factory()->create();
 
         // Make the request with authentication
         $response = $this->withHeaders([
             'Authorization' => 'Bearer ' . $this->token,
-        ])->getJson('/api/translations/search/tags/test-tag');
+        ])->getJson('/api/translations/search/tags/web');
 
         // Assert the response
-        $response->assertStatus(200)
-            ->assertJsonStructure([
-                'status',
-                'data' => [
-                    'data' => [
-                        '*' => [
-                            'id',
-                            'key',
-                            'value',
-                            'locale',
-                            'created_at',
-                            'updated_at',
-                            'tags',
-                        ],
-                    ],
-                ],
-            ]);
+        $response->assertStatus(200);
+        $this->assertEquals(1, $response->json('data.total'));
+    }
+
+    #[Test]
+    public function it_can_search_translations_by_tag_with_limit_and_offset()
+    {
+        // Create a tag
+        $tag = Tag::factory()->create(['name' => 'web']);
+        
+        // Create 10 translations and attach the tag
+        for ($i = 0; $i < 10; $i++) {
+            $translation = Translation::factory()->create();
+            $translation->tags()->attach($tag->id);
+        }
+
+        // Test with limit only
+        $responseWithLimit = $this->withHeaders([
+            'Authorization' => 'Bearer ' . $this->token,
+        ])->getJson('/api/translations/search/tags/web?limit=3');
+
+        $responseWithLimit->assertStatus(200);
+        $this->assertCount(3, $responseWithLimit->json('data.data'));
+
+        // Test with limit and offset
+        $responseWithOffset = $this->withHeaders([
+            'Authorization' => 'Bearer ' . $this->token,
+        ])->getJson('/api/translations/search/tags/web?limit=3&offset=3');
+
+        $responseWithOffset->assertStatus(200);
+        $this->assertCount(3, $responseWithOffset->json('data.data'));
+        
+        // Ensure different pages have different data
+        $this->assertNotEquals(
+            $responseWithLimit->json('data.data.0.id'),
+            $responseWithOffset->json('data.data.0.id')
+        );
     }
 
     #[Test]
     public function it_can_search_translations_by_key()
     {
-        // Create a translation with a specific key
-        Translation::factory()->create(['key' => 'test.search.key']);
+        // Create translations with specific keys
+        Translation::factory()->create(['key' => 'welcome.message']);
+        Translation::factory()->create(['key' => 'login.title']);
 
         // Make the request with authentication
         $response = $this->withHeaders([
             'Authorization' => 'Bearer ' . $this->token,
-        ])->getJson('/api/translations/search/keys/search');
+        ])->getJson('/api/translations/search/keys/welcome');
 
         // Assert the response
-        $response->assertStatus(200)
-            ->assertJsonStructure([
-                'status',
-                'data' => [
-                    'data' => [
-                        '*' => [
-                            'id',
-                            'key',
-                            'value',
-                            'locale',
-                            'created_at',
-                            'updated_at',
-                            'tags',
-                        ],
-                    ],
-                ],
-            ]);
+        $response->assertStatus(200);
+        $this->assertEquals(1, $response->json('data.total'));
+    }
+
+    #[Test]
+    public function it_can_search_translations_by_key_with_limit_and_offset()
+    {
+        // Create 10 translations with similar keys
+        for ($i = 0; $i < 10; $i++) {
+            Translation::factory()->create(['key' => "welcome.message{$i}"]);
+        }
+
+        // Test with limit only
+        $responseWithLimit = $this->withHeaders([
+            'Authorization' => 'Bearer ' . $this->token,
+        ])->getJson('/api/translations/search/keys/welcome?limit=3');
+
+        $responseWithLimit->assertStatus(200);
+        $this->assertCount(3, $responseWithLimit->json('data.data'));
+
+        // Test with limit and offset
+        $responseWithOffset = $this->withHeaders([
+            'Authorization' => 'Bearer ' . $this->token,
+        ])->getJson('/api/translations/search/keys/welcome?limit=3&offset=3');
+
+        $responseWithOffset->assertStatus(200);
+        $this->assertCount(3, $responseWithOffset->json('data.data'));
+        
+        // Ensure different pages have different data
+        $this->assertNotEquals(
+            $responseWithLimit->json('data.data.0.id'),
+            $responseWithOffset->json('data.data.0.id')
+        );
     }
 
     #[Test]
     public function it_can_search_translations_by_content()
     {
-        // Create a translation with specific content
-        Translation::factory()->create(['value' => 'This is a searchable content']);
+        // Create translations with specific content
+        Translation::factory()->create(['value' => 'Welcome to our application']);
+        Translation::factory()->create(['value' => 'Login to your account']);
 
         // Make the request with authentication
         $response = $this->withHeaders([
             'Authorization' => 'Bearer ' . $this->token,
-        ])->getJson('/api/translations/search/content/searchable');
+        ])->getJson('/api/translations/search/content/Welcome');
 
         // Assert the response
-        $response->assertStatus(200)
-            ->assertJsonStructure([
-                'status',
-                'data' => [
-                    'data' => [
-                        '*' => [
-                            'id',
-                            'key',
-                            'value',
-                            'locale',
-                            'created_at',
-                            'updated_at',
-                            'tags',
-                        ],
-                    ],
-                ],
-            ]);
+        $response->assertStatus(200);
+        $this->assertEquals(1, $response->json('data.total'));
+    }
+
+    #[Test]
+    public function it_can_search_translations_by_content_with_limit_and_offset()
+    {
+        // Create 10 translations with similar content
+        for ($i = 0; $i < 10; $i++) {
+            Translation::factory()->create(['value' => "Welcome message {$i}"]);
+        }
+
+        // Test with limit only
+        $responseWithLimit = $this->withHeaders([
+            'Authorization' => 'Bearer ' . $this->token,
+        ])->getJson('/api/translations/search/content/Welcome?limit=3');
+
+        $responseWithLimit->assertStatus(200);
+        $this->assertCount(3, $responseWithLimit->json('data.data'));
+
+        // Test with limit and offset
+        $responseWithOffset = $this->withHeaders([
+            'Authorization' => 'Bearer ' . $this->token,
+        ])->getJson('/api/translations/search/content/Welcome?limit=3&offset=3');
+
+        $responseWithOffset->assertStatus(200);
+        $this->assertCount(3, $responseWithOffset->json('data.data'));
+        
+        // Ensure different pages have different data
+        $this->assertNotEquals(
+            $responseWithLimit->json('data.data.0.id'),
+            $responseWithOffset->json('data.data.0.id')
+        );
     }
 
     #[Test]

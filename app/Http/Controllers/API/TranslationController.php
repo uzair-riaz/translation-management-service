@@ -36,7 +36,10 @@ class TranslationController extends Controller
     public function index(Request $request): JsonResponse
     {
         $locale = $request->has('locale') ? $request->locale : null;
-        $translations = $this->translationService->getAllTranslations($locale);
+        $limit = $request->has('limit') ? (int) $request->limit : null;
+        $offset = $request->has('offset') ? (int) $request->offset : null;
+        
+        $translations = $this->translationService->getAllTranslations($locale, $limit, $offset);
         
         return response()->json([
             'status' => 'success',
@@ -185,7 +188,10 @@ class TranslationController extends Controller
     {
         try {
             $locale = $request->has('locale') ? $request->locale : null;
-            $translations = $this->translationService->searchByTag($tag, $locale);
+            $limit = $request->has('limit') ? (int) $request->limit : null;
+            $offset = $request->has('offset') ? (int) $request->offset : null;
+            
+            $translations = $this->translationService->searchByTag($tag, $locale, $limit, $offset);
             
             return response()->json([
                 'status' => 'success',
@@ -217,7 +223,10 @@ class TranslationController extends Controller
     {
         try {
             $locale = $request->has('locale') ? $request->locale : null;
-            $translations = $this->translationService->searchByKey($key, $locale);
+            $limit = $request->has('limit') ? (int) $request->limit : null;
+            $offset = $request->has('offset') ? (int) $request->offset : null;
+            
+            $translations = $this->translationService->searchByKey($key, $locale, $limit, $offset);
             
             return response()->json([
                 'status' => 'success',
@@ -249,7 +258,10 @@ class TranslationController extends Controller
     {
         try {
             $locale = $request->has('locale') ? $request->locale : null;
-            $translations = $this->translationService->searchByContent($content, $locale);
+            $limit = $request->has('limit') ? (int) $request->limit : null;
+            $offset = $request->has('offset') ? (int) $request->offset : null;
+            
+            $translations = $this->translationService->searchByContent($content, $locale, $limit, $offset);
             
             return response()->json([
                 'status' => 'success',

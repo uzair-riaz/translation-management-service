@@ -23,14 +23,18 @@ class TranslationRepository extends BaseRepository implements TranslationReposit
      * Get translations by locale.
      *
      * @param string $locale
-     * @param int $perPage
+     * @param int|null $limit
+     * @param int|null $offset
      * @return LengthAwarePaginator
      */
-    public function getByLocale(string $locale, int $perPage = 15): LengthAwarePaginator
+    public function getByLocale(string $locale, ?int $limit = null, ?int $offset = null): LengthAwarePaginator
     {
+        $limit = $limit ?? 15; // Default limit is 15
+        $page = $offset ? floor($offset / $limit) + 1 : 1;
+        
         return $this->model->with('tags')
             ->locale($locale)
-            ->paginate($perPage);
+            ->paginate($limit, ['*'], 'page', $page);
     }
 
     /**
@@ -38,11 +42,15 @@ class TranslationRepository extends BaseRepository implements TranslationReposit
      *
      * @param string $tag
      * @param string|null $locale
-     * @param int $perPage
+     * @param int|null $limit
+     * @param int|null $offset
      * @return LengthAwarePaginator
      */
-    public function searchByTag(string $tag, ?string $locale = null, int $perPage = 15): LengthAwarePaginator
+    public function searchByTag(string $tag, ?string $locale = null, ?int $limit = null, ?int $offset = null): LengthAwarePaginator
     {
+        $limit = $limit ?? 15; // Default limit is 15
+        $page = $offset ? floor($offset / $limit) + 1 : 1;
+        
         $query = $this->model->whereHas('tags', function ($query) use ($tag) {
             $query->where('name', 'LIKE', "%$tag%");
         });
@@ -51,7 +59,7 @@ class TranslationRepository extends BaseRepository implements TranslationReposit
             $query->locale($locale);
         }
 
-        return $query->with('tags')->paginate($perPage);
+        return $query->with('tags')->paginate($limit, ['*'], 'page', $page);
     }
 
     /**
@@ -59,18 +67,22 @@ class TranslationRepository extends BaseRepository implements TranslationReposit
      *
      * @param string $key
      * @param string|null $locale
-     * @param int $perPage
+     * @param int|null $limit
+     * @param int|null $offset
      * @return LengthAwarePaginator
      */
-    public function searchByKey(string $key, ?string $locale = null, int $perPage = 15): LengthAwarePaginator
+    public function searchByKey(string $key, ?string $locale = null, ?int $limit = null, ?int $offset = null): LengthAwarePaginator
     {
+        $limit = $limit ?? 15; // Default limit is 15
+        $page = $offset ? floor($offset / $limit) + 1 : 1;
+        
         $query = $this->model->searchByKey($key);
 
         if ($locale) {
             $query->locale($locale);
         }
 
-        return $query->with('tags')->paginate($perPage);
+        return $query->with('tags')->paginate($limit, ['*'], 'page', $page);
     }
 
     /**
@@ -78,11 +90,15 @@ class TranslationRepository extends BaseRepository implements TranslationReposit
      *
      * @param string $content
      * @param string|null $locale
-     * @param int $perPage
+     * @param int|null $limit
+     * @param int|null $offset
      * @return LengthAwarePaginator
      */
-    public function searchByContent(string $content, ?string $locale = null, int $perPage = 15): LengthAwarePaginator
+    public function searchByContent(string $content, ?string $locale = null, ?int $limit = null, ?int $offset = null): LengthAwarePaginator
     {
+        $limit = $limit ?? 15; // Default limit is 15
+        $page = $offset ? floor($offset / $limit) + 1 : 1;
+        
         // Use MySQL's MATCH AGAINST for fulltext search which is much faster
         // than LIKE queries for large datasets
         $query = $this->model->where('value', 'LIKE', "%$content%");
@@ -91,7 +107,7 @@ class TranslationRepository extends BaseRepository implements TranslationReposit
             $query->locale($locale);
         }
 
-        return $query->with('tags')->paginate($perPage);
+        return $query->with('tags')->paginate($limit, ['*'], 'page', $page);
     }
 
     /**

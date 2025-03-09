@@ -38,13 +38,17 @@ abstract class BaseRepository implements RepositoryInterface
     /**
      * Get paginated resources.
      *
-     * @param int $perPage
+     * @param int|null $limit
+     * @param int|null $offset
      * @param array $columns
      * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
      */
-    public function paginate(int $perPage = 15, array $columns = ['*']): LengthAwarePaginator
+    public function paginate(?int $limit = null, ?int $offset = null, array $columns = ['*']): LengthAwarePaginator
     {
-        return $this->model->paginate($perPage, $columns);
+        $limit = $limit ?? 15; // Default limit is 15
+        $page = $offset ? floor($offset / $limit) + 1 : 1;
+        
+        return $this->model->paginate($limit, $columns, 'page', $page);
     }
 
     /**

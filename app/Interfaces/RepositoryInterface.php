@@ -19,11 +19,12 @@ interface RepositoryInterface
     /**
      * Get paginated resources.
      *
-     * @param int $perPage
+     * @param int|null $limit
+     * @param int|null $offset
      * @param array $columns
      * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
      */
-    public function paginate(int $perPage = 15, array $columns = ['*']): LengthAwarePaginator;
+    public function paginate(?int $limit = null, ?int $offset = null, array $columns = ['*']): LengthAwarePaginator;
 
     /**
      * Create a new resource.

@@ -102,86 +102,184 @@ class TranslationRepositoryTest extends TestCase
     }
 
     #[Test]
+    public function it_can_get_translations_by_locale_with_limit_and_offset()
+    {
+        Translation::factory()->count(5)->create(['locale' => 'en']);
+
+        // Test with limit only
+        $limitedTranslations = $this->translationRepository->getByLocale('en', 2);
+        $this->assertEquals(2, $limitedTranslations->count());
+
+        // Test with limit and offset
+        $offsetTranslations = $this->translationRepository->getByLocale('en', 2, 2);
+        $this->assertEquals(2, $offsetTranslations->count());
+        $this->assertNotEquals(
+            $limitedTranslations->first()->id,
+            $offsetTranslations->first()->id
+        );
+    }
+
+    #[Test]
     public function it_can_search_translations_by_tag()
     {
         // Create tags
         $webTag = Tag::factory()->create(['name' => 'web']);
         $mobileTag = Tag::factory()->create(['name' => 'mobile']);
-
-        // Create translations
-        $translation1 = Translation::factory()->create(['locale' => 'en']);
-        $translation2 = Translation::factory()->create(['locale' => 'en']);
-        $translation3 = Translation::factory()->create(['locale' => 'fr']);
-
-        // Attach tags
-        $translation1->tags()->attach($webTag->id);
-        $translation2->tags()->attach($mobileTag->id);
-        $translation3->tags()->attach($webTag->id);
-
+        
+        // Create translations with tags
+        $webTranslation = Translation::factory()->create(['locale' => 'en']);
+        $webTranslation->tags()->attach($webTag->id);
+        
+        $mobileTranslation = Translation::factory()->create(['locale' => 'en']);
+        $mobileTranslation->tags()->attach($mobileTag->id);
+        
+        $bothTranslation = Translation::factory()->create(['locale' => 'fr']);
+        $bothTranslation->tags()->attach([$webTag->id, $mobileTag->id]);
+        
         // Search by web tag
         $webResults = $this->translationRepository->searchByTag('web');
         $this->assertEquals(2, $webResults->count());
-
+        
         // Search by mobile tag
         $mobileResults = $this->translationRepository->searchByTag('mobile');
-        $this->assertEquals(1, $mobileResults->count());
+        $this->assertEquals(2, $mobileResults->count());
+        
+        // Search by tag with locale filter
+        $frResults = $this->translationRepository->searchByTag('web', 'fr');
+        $this->assertEquals(1, $frResults->count());
+    }
 
-        // Search by web tag with locale filter
-        $webEnResults = $this->translationRepository->searchByTag('web', 'en');
-        $this->assertEquals(1, $webEnResults->count());
-        $this->assertEquals($translation1->id, $webEnResults->first()->id);
+    #[Test]
+    public function it_can_search_translations_by_tag_with_limit_and_offset()
+    {
+        // Create tag
+        $webTag = Tag::factory()->create(['name' => 'web']);
+        
+        // Create 5 translations with the same tag
+        for ($i = 0; $i < 5; $i++) {
+            $translation = Translation::factory()->create(['locale' => 'en']);
+            $translation->tags()->attach($webTag->id);
+        }
+        
+        // Test with limit only
+        $limitedResults = $this->translationRepository->searchByTag('web', null, 2);
+        $this->assertEquals(2, $limitedResults->count());
+        
+        // Test with limit and offset
+        $offsetResults = $this->translationRepository->searchByTag('web', null, 2, 2);
+        $this->assertEquals(2, $offsetResults->count());
+        $this->assertNotEquals(
+            $limitedResults->first()->id,
+            $offsetResults->first()->id
+        );
     }
 
     #[Test]
     public function it_can_search_translations_by_key()
     {
+        // Create translations with different keys
         Translation::factory()->create([
             'key' => 'welcome.message',
-            'locale' => 'en',
+            'locale' => 'en'
         ]);
+        
         Translation::factory()->create([
             'key' => 'welcome.title',
-            'locale' => 'en',
+            'locale' => 'en'
         ]);
+        
         Translation::factory()->create([
-            'key' => 'login.title',
-            'locale' => 'en',
+            'key' => 'welcome.message',
+            'locale' => 'fr'
         ]);
-
+        
+        // Search by key
         $results = $this->translationRepository->searchByKey('welcome');
-        $this->assertEquals(2, $results->count());
+        $this->assertEquals(3, $results->count());
+        
+        // Search by specific key
+        $messageResults = $this->translationRepository->searchByKey('message');
+        $this->assertEquals(2, $messageResults->count());
+        
+        // Search by key with locale filter
+        $frResults = $this->translationRepository->searchByKey('welcome', 'fr');
+        $this->assertEquals(1, $frResults->count());
+    }
 
-        $results = $this->translationRepository->searchByKey('title');
-        $this->assertEquals(2, $results->count());
-
-        $results = $this->translationRepository->searchByKey('login');
-        $this->assertEquals(1, $results->count());
+    #[Test]
+    public function it_can_search_translations_by_key_with_limit_and_offset()
+    {
+        // Create 5 translations with similar keys
+        for ($i = 0; $i < 5; $i++) {
+            Translation::factory()->create([
+                'key' => "welcome.message{$i}",
+                'locale' => 'en'
+            ]);
+        }
+        
+        // Test with limit only
+        $limitedResults = $this->translationRepository->searchByKey('welcome', null, 2);
+        $this->assertEquals(2, $limitedResults->count());
+        
+        // Test with limit and offset
+        $offsetResults = $this->translationRepository->searchByKey('welcome', null, 2, 2);
+        $this->assertEquals(2, $offsetResults->count());
+        $this->assertNotEquals(
+            $limitedResults->first()->id,
+            $offsetResults->first()->id
+        );
     }
 
     #[Test]
     public function it_can_search_translations_by_content()
     {
+        // Create translations with different content
         Translation::factory()->create([
             'value' => 'Welcome to our application',
-            'locale' => 'en',
+            'locale' => 'en'
         ]);
+        
         Translation::factory()->create([
-            'value' => 'Login to your account',
-            'locale' => 'en',
+            'value' => 'Hello world',
+            'locale' => 'en'
         ]);
+        
         Translation::factory()->create([
-            'value' => 'Welcome to our mobile app',
-            'locale' => 'fr',
+            'value' => 'Bienvenue à notre application',
+            'locale' => 'fr'
         ]);
-
+        
+        // Search by content
         $results = $this->translationRepository->searchByContent('Welcome');
-        $this->assertEquals(2, $results->count());
-
-        $results = $this->translationRepository->searchByContent('Login');
         $this->assertEquals(1, $results->count());
+        
+        // Search by content with locale filter
+        $frResults = $this->translationRepository->searchByContent('Bienvenue', 'fr');
+        $this->assertEquals(1, $frResults->count());
+    }
 
-        $results = $this->translationRepository->searchByContent('Welcome', 'en');
-        $this->assertEquals(1, $results->count());
+    #[Test]
+    public function it_can_search_translations_by_content_with_limit_and_offset()
+    {
+        // Create 5 translations with similar content
+        for ($i = 0; $i < 5; $i++) {
+            Translation::factory()->create([
+                'value' => "Welcome message {$i}",
+                'locale' => 'en'
+            ]);
+        }
+        
+        // Test with limit only
+        $limitedResults = $this->translationRepository->searchByContent('Welcome', null, 2);
+        $this->assertEquals(2, $limitedResults->count());
+        
+        // Test with limit and offset
+        $offsetResults = $this->translationRepository->searchByContent('Welcome', null, 2, 2);
+        $this->assertEquals(2, $offsetResults->count());
+        $this->assertNotEquals(
+            $limitedResults->first()->id,
+            $offsetResults->first()->id
+        );
     }
 
     #[Test]

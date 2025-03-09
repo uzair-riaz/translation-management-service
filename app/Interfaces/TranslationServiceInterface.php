@@ -11,10 +11,11 @@ interface TranslationServiceInterface
      * Get all translations with pagination.
      *
      * @param string|null $locale
-     * @param int $perPage
+     * @param int|null $limit
+     * @param int|null $offset
      * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
      */
-    public function getAllTranslations(?string $locale = null, int $perPage = 50): LengthAwarePaginator;
+    public function getAllTranslations(?string $locale = null, ?int $limit = null, ?int $offset = null): LengthAwarePaginator;
 
     /**
      * Create a new translation.
@@ -54,30 +55,33 @@ interface TranslationServiceInterface
      *
      * @param string $tag
      * @param string|null $locale
-     * @param int $perPage
+     * @param int|null $limit
+     * @param int|null $offset
      * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
      */
-    public function searchByTag(string $tag, ?string $locale = null, int $perPage = 50): LengthAwarePaginator;
+    public function searchByTag(string $tag, ?string $locale = null, ?int $limit = null, ?int $offset = null): LengthAwarePaginator;
 
     /**
      * Search translations by key.
      *
      * @param string $key
      * @param string|null $locale
-     * @param int $perPage
+     * @param int|null $limit
+     * @param int|null $offset
      * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
      */
-    public function searchByKey(string $key, ?string $locale = null, int $perPage = 50): LengthAwarePaginator;
+    public function searchByKey(string $key, ?string $locale = null, ?int $limit = null, ?int $offset = null): LengthAwarePaginator;
 
     /**
      * Search translations by content.
      *
      * @param string $content
      * @param string|null $locale
-     * @param int $perPage
+     * @param int|null $limit
+     * @param int|null $offset
      * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
      */
-    public function searchByContent(string $content, ?string $locale = null, int $perPage = 50): LengthAwarePaginator;
+    public function searchByContent(string $content, ?string $locale = null, ?int $limit = null, ?int $offset = null): LengthAwarePaginator;
 
     /**
      * Export translations for a specific locale.

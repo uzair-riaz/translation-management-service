@@ -41,19 +41,23 @@ class TranslationService implements TranslationServiceInterface
      * Get all translations with pagination.
      *
      * @param string|null $locale
-     * @param int $perPage
+     * @param int|null $limit
+     * @param int|null $offset
      * @return LengthAwarePaginator
      */
-    public function getAllTranslations(?string $locale = null, int $perPage = 50): LengthAwarePaginator
+    public function getAllTranslations(?string $locale = null, ?int $limit = null, ?int $offset = null): LengthAwarePaginator
     {
-        $cacheKey = $locale ? "translations.list.{$locale}.{$perPage}" : "translations.list.all.{$perPage}";
+        $limit = $limit ?? 15; // Default limit is 15
+        $cacheKey = $locale
+            ? "translations.list.{$locale}.{$limit}.{$offset}"
+            : "translations.list.all.{$limit}.{$offset}";
 
-        return Cache::remember($cacheKey, now()->addMinutes(30), function () use ($locale, $perPage) {
+        return Cache::remember($cacheKey, now()->addMinutes(30), function () use ($locale, $limit, $offset) {
             if ($locale) {
-                return $this->translationRepository->getByLocale($locale, $perPage);
+                return $this->translationRepository->getByLocale($locale, $limit, $offset);
             }
 
-            return $this->translationRepository->paginate($perPage);
+            return $this->translationRepository->paginate($limit, $offset);
         });
     }
 
@@ -216,15 +220,17 @@ class TranslationService implements TranslationServiceInterface
      *
      * @param string $tag
      * @param string|null $locale
-     * @param int $perPage
+     * @param int|null $limit
+     * @param int|null $offset
      * @return LengthAwarePaginator
      */
-    public function searchByTag(string $tag, ?string $locale = null, int $perPage = 50): LengthAwarePaginator
+    public function searchByTag(string $tag, ?string $locale = null, ?int $limit = null, ?int $offset = null): LengthAwarePaginator
     {
-        $cacheKey = "translations.search.tag.{$tag}." . ($locale ?? 'all') . ".{$perPage}";
+        $limit = $limit ?? 15; // Default limit is 15
+        $cacheKey = "translations.search.tag.{$tag}." . ($locale ?? 'all') . ".{$limit}.{$offset}";
 
-        return Cache::remember($cacheKey, now()->addMinutes(15), function () use ($tag, $locale, $perPage) {
-            return $this->translationRepository->searchByTag($tag, $locale, $perPage);
+        return Cache::remember($cacheKey, now()->addMinutes(15), function () use ($tag, $locale, $limit, $offset) {
+            return $this->translationRepository->searchByTag($tag, $locale, $limit, $offset);
         });
     }
 
@@ -233,15 +239,17 @@ class TranslationService implements TranslationServiceInterface
      *
      * @param string $key
      * @param string|null $locale
-     * @param int $perPage
+     * @param int|null $limit
+     * @param int|null $offset
      * @return LengthAwarePaginator
      */
-    public function searchByKey(string $key, ?string $locale = null, int $perPage = 50): LengthAwarePaginator
+    public function searchByKey(string $key, ?string $locale = null, ?int $limit = null, ?int $offset = null): LengthAwarePaginator
     {
-        $cacheKey = "translations.search.key.{$key}." . ($locale ?? 'all') . ".{$perPage}";
+        $limit = $limit ?? 15; // Default limit is 15
+        $cacheKey = "translations.search.key.{$key}." . ($locale ?? 'all') . ".{$limit}.{$offset}";
 
-        return Cache::remember($cacheKey, now()->addMinutes(15), function () use ($key, $locale, $perPage) {
-            return $this->translationRepository->searchByKey($key, $locale, $perPage);
+        return Cache::remember($cacheKey, now()->addMinutes(15), function () use ($key, $locale, $limit, $offset) {
+            return $this->translationRepository->searchByKey($key, $locale, $limit, $offset);
         });
     }
 
@@ -250,15 +258,17 @@ class TranslationService implements TranslationServiceInterface
      *
      * @param string $content
      * @param string|null $locale
-     * @param int $perPage
+     * @param int|null $limit
+     * @param int|null $offset
      * @return LengthAwarePaginator
      */
-    public function searchByContent(string $content, ?string $locale = null, int $perPage = 50): LengthAwarePaginator
+    public function searchByContent(string $content, ?string $locale = null, ?int $limit = null, ?int $offset = null): LengthAwarePaginator
     {
-        $cacheKey = "translations.search.content.{$content}." . ($locale ?? 'all') . ".{$perPage}";
+        $limit = $limit ?? 15; // Default limit is 15
+        $cacheKey = "translations.search.content.{$content}." . ($locale ?? 'all') . ".{$limit}.{$offset}";
 
-        return Cache::remember($cacheKey, now()->addMinutes(15), function () use ($content, $locale, $perPage) {
-            return $this->translationRepository->searchByContent($content, $locale, $perPage);
+        return Cache::remember($cacheKey, now()->addMinutes(15), function () use ($content, $locale, $limit, $offset) {
+            return $this->translationRepository->searchByContent($content, $locale, $limit, $offset);
         });
     }
 
@@ -276,7 +286,7 @@ class TranslationService implements TranslationServiceInterface
         // Use cache to improve performance
         $cacheKey = "translations.export.{$locale}";
 
-        return Cache::remember($cacheKey, now()->addHours(1), function () use ($locale) {
+        return Cache::remember($cacheKey, now()->addHour(), function () use ($locale) {
             return $this->translationRepository->exportByLocale($locale);
         });
     }
@@ -293,11 +303,11 @@ class TranslationService implements TranslationServiceInterface
         Cache::forget("translations.{$locale}");
         Cache::forget("translations.export.{$locale}");
 
-        // Clear list caches
-        Cache::forget("translations.list.{$locale}.50");
-        Cache::forget("translations.list.all.50");
+        // Clear list caches - we need to use a pattern to clear all offset/limit combinations
+        Cache::forget("translations.list.{$locale}.*");
+        Cache::forget("translations.list.all.*");
 
-        // Clear search caches (we can't clear all search caches efficiently,
-        // but they will expire after 15 minutes anyway)
+        // We can't clear all search caches efficiently with wildcard patterns,
+        // but they will expire after 15 minutes anyway
     }
 }
