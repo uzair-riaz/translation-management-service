@@ -35,12 +35,12 @@ class TranslationController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $locale = $request->has('locale') ? $request->locale : null;
-        $limit = $request->has('limit') ? (int) $request->limit : null;
-        $offset = $request->has('offset') ? (int) $request->offset : null;
-        
+        $locale = $request->has('locale') ? $request->get('locale') : null;
+        $limit = $request->has('limit') ? (int) $request->get('limit') : null;
+        $offset = $request->has('offset') ? (int) $request->get('offset') : null;
+
         $translations = $this->translationService->getAllTranslations($locale, $limit, $offset);
-        
+
         return response()->json([
             'status' => 'success',
             'data' => $translations,
@@ -57,7 +57,7 @@ class TranslationController extends Controller
     {
         try {
             $translation = $this->translationService->createTranslation($request->validated());
-            
+
             return response()->json([
                 'status' => 'success',
                 'message' => 'Translation created successfully',
@@ -69,10 +69,10 @@ class TranslationController extends Controller
                 'exception' => $e,
                 'request_data' => $request->validated()
             ]);
-            
+
             $statusCode = $e->getCode() === 409 ? 409 : 500;
             $message = $e->getCode() === 409 ? $e->getMessage() : 'Internal Server Error';
-            
+
             return response()->json([
                 'status' => 'error',
                 'message' => $message,
@@ -90,7 +90,7 @@ class TranslationController extends Controller
     {
         try {
             $translation = $this->translationService->getTranslationById($id);
-            
+
             return response()->json([
                 'status' => 'success',
                 'data' => $translation,
@@ -114,7 +114,7 @@ class TranslationController extends Controller
     {
         try {
             $translation = $this->translationService->updateTranslation($id, $request->validated());
-            
+
             return response()->json([
                 'status' => 'success',
                 'message' => 'Translation updated successfully',
@@ -132,10 +132,10 @@ class TranslationController extends Controller
                 'translation_id' => $id,
                 'request_data' => $request->validated()
             ]);
-            
+
             $statusCode = $e->getCode() === 422 ? 422 : 500;
             $message = $e->getCode() === 422 ? $e->getMessage() : 'Internal Server Error';
-            
+
             return response()->json([
                 'status' => 'error',
                 'message' => $message,
@@ -153,7 +153,7 @@ class TranslationController extends Controller
     {
         try {
             $this->translationService->deleteTranslation($id);
-            
+
             return response()->json([
                 'status' => 'success',
                 'message' => 'Translation deleted successfully',
@@ -169,7 +169,7 @@ class TranslationController extends Controller
                 'exception' => $e,
                 'translation_id' => $id
             ]);
-            
+
             return response()->json([
                 'status' => 'error',
                 'message' => 'Internal Server Error',
@@ -187,12 +187,12 @@ class TranslationController extends Controller
     public function searchByTag($tag, Request $request): JsonResponse
     {
         try {
-            $locale = $request->has('locale') ? $request->locale : null;
-            $limit = $request->has('limit') ? (int) $request->limit : null;
-            $offset = $request->has('offset') ? (int) $request->offset : null;
-            
+            $locale = $request->has('locale') ? $request->get('locale') : null;
+            $limit = $request->has('limit') ? (int) $request->get('limit') : null;
+            $offset = $request->has('offset') ? (int) $request->get('offset') : null;
+
             $translations = $this->translationService->searchByTag($tag, $locale, $limit, $offset);
-            
+
             return response()->json([
                 'status' => 'success',
                 'data' => $translations,
@@ -202,9 +202,9 @@ class TranslationController extends Controller
             \Log::error('Search by tag failed: ' . $e->getMessage(), [
                 'exception' => $e,
                 'tag' => $tag,
-                'locale' => $request->locale
+                'locale' => $request->get('locale')
             ]);
-            
+
             return response()->json([
                 'status' => 'error',
                 'message' => 'Internal Server Error',
@@ -222,12 +222,12 @@ class TranslationController extends Controller
     public function searchByKey($key, Request $request): JsonResponse
     {
         try {
-            $locale = $request->has('locale') ? $request->locale : null;
-            $limit = $request->has('limit') ? (int) $request->limit : null;
-            $offset = $request->has('offset') ? (int) $request->offset : null;
-            
+            $locale = $request->has('locale') ? $request->get('locale') : null;
+            $limit = $request->has('limit') ? (int) $request->get('limit') : null;
+            $offset = $request->has('offset') ? (int) $request->get('offset') : null;
+
             $translations = $this->translationService->searchByKey($key, $locale, $limit, $offset);
-            
+
             return response()->json([
                 'status' => 'success',
                 'data' => $translations,
@@ -237,9 +237,9 @@ class TranslationController extends Controller
             \Log::error('Search by key failed: ' . $e->getMessage(), [
                 'exception' => $e,
                 'key' => $key,
-                'locale' => $request->locale
+                'locale' => $request->get('locale')
             ]);
-            
+
             return response()->json([
                 'status' => 'error',
                 'message' => 'Internal Server Error',
@@ -257,12 +257,12 @@ class TranslationController extends Controller
     public function searchByContent($content, Request $request): JsonResponse
     {
         try {
-            $locale = $request->has('locale') ? $request->locale : null;
-            $limit = $request->has('limit') ? (int) $request->limit : null;
-            $offset = $request->has('offset') ? (int) $request->offset : null;
-            
+            $locale = $request->has('locale') ? $request->get('locale') : null;
+            $limit = $request->has('limit') ? (int) $request->get('limit') : null;
+            $offset = $request->has('offset') ? (int) $request->get('offset') : null;
+
             $translations = $this->translationService->searchByContent($content, $locale, $limit, $offset);
-            
+
             return response()->json([
                 'status' => 'success',
                 'data' => $translations,
@@ -272,9 +272,9 @@ class TranslationController extends Controller
             \Log::error('Search by content failed: ' . $e->getMessage(), [
                 'exception' => $e,
                 'content' => $content,
-                'locale' => $request->locale
+                'locale' => $request->get('locale')
             ]);
-            
+
             return response()->json([
                 'status' => 'error',
                 'message' => 'Internal Server Error',
@@ -292,7 +292,7 @@ class TranslationController extends Controller
     {
         try {
             $translations = $this->translationService->exportTranslations($locale);
-            
+
             return response()->json($translations);
         } catch (\Exception $e) {
             // Log the actual error for debugging
@@ -300,11 +300,11 @@ class TranslationController extends Controller
                 'exception' => $e,
                 'locale' => $locale
             ]);
-            
+
             return response()->json([
                 'status' => 'error',
                 'message' => 'Internal Server Error',
             ], 500);
         }
     }
-} 
+}
